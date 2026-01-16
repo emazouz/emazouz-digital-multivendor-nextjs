@@ -1,4 +1,5 @@
-import SaleOffer from "@/shared/components/sale-0ffer";
+import SaleOffer from "@/modules/home/components/sale-offer";
+import Header from "@/modules/home/components/header";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -14,6 +15,7 @@ export default function RootLayout({
   return (
     <main>
       <SaleOffer />
+      <Header />
       {children}
     </main>
   );
