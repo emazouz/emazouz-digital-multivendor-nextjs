@@ -150,10 +150,8 @@ This project demonstrates proficiency in:
 ---
 
 ## 📞 Contact & Links
-- **Live Demo**: [emazouz-market.vercel.app](#)
-- **GitHub**: [github.com/yourusername/emazouz-market](#)
-- **Documentation**: [docs.emazouz-market.com](#)
-- **API Reference**: [api.emazouz-market.com/docs](#)
+- **GitHub**: [https://github.com/emazouz/emazouz-digital-multivendor-nextjs](#)
+- **Email**: [wb.mazouz@gmail.com](mailto:wb.mazouz@gmail.com)
 
 ---
 
