@@ -2,6 +2,7 @@ import { ThemeProvider } from "@/shared/components/theme-provider";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "./font.css";
 import { APP_NAME, APP_DESCRIPTION, APP_URL } from "@/shared/constants/env";
 
 const inter = Inter({

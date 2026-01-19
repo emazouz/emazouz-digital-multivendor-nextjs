@@ -1,0 +1,11 @@
+{
+    "products": [
+        {
+            "id": 1,
+            "name": "SaaS dashboard digital products",
+            "image": "/assets/images/thumbs/product-img1.png",
+            "price": 99,
+            "description": "Description of Product 1"
+        }
+    ]
+}

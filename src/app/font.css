@@ -1,0 +1,13 @@
+/* Font Style */
+
+@import url("https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Shadows+Into+Light&display=swap");
+
+
+
+
+
+.caveat-brush-regular {
+  font-family: "Caveat Brush", cursive;
+  font-weight: 500;
+  font-style: normal;
+}
