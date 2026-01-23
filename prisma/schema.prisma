@@ -1,69 +1,517 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
 }
+// generator client {
+//   provider = "prisma-client"
+// }
 
-// ========================================
-// AUTHENTICATION & USER MANAGEMENT (NextAuth.js)
-// ========================================
+// datasource db {
+//   provider = "postgresql"
+// }
 
+// // ========================================
+// // AUTHENTICATION & USER MANAGEMENT (NextAuth.js)
+// // ========================================
+
+// enum UserRole {
+//   USER
+//   ADMIN
+//   VENDOR
+// }
+
+// model User {
+//   id            String    @id @default(cuid())
+//   name          String?
+//   email         String    @unique
+//   emailVerified DateTime?
+//   image         String?
+//   password      String?   // Hashed, nullable for OAuth users
+//   role          UserRole  @default(USER)
+//   createdAt     DateTime  @default(now())
+//   updatedAt     DateTime  @updatedAt
+
+//   // Relations
+//   accounts  Account[]
+//   sessions  Session[]
+//   vendor    Vendor?
+//   reviews   Review[]
+//   purchases Purchase[]
+
+//   @@index([email])
+//   @@map("users")
+// }
+
+// model Account {
+//   id                String  @id @default(cuid())
+//   userId            String
+//   type              String
+//   provider          String
+//   providerAccountId String
+//   refresh_token     String? @db.Text
+//   access_token      String? @db.Text
+//   expires_at        Int?
+//   token_type        String?
+//   scope             String?
+//   id_token          String? @db.Text
+//   session_state     String?
+
+//   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+//   @@unique([provider, providerAccountId])
+//   @@index([userId])
+//   @@map("accounts")
+// }
+
+// model Session {
+//   id           String   @id @default(cuid())
+//   sessionToken String   @unique
+//   userId       String
+//   expires      DateTime
+
+//   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+//   @@index([userId])
+//   @@map("sessions")
+// }
+
+// model VerificationToken {
+//   identifier String
+//   token      String   @unique
+//   expires    DateTime
+
+//   @@unique([identifier, token])
+//   @@map("verification_tokens")
+// }
+
+// // ========================================
+// // VENDOR SYSTEM
+// // ========================================
+
+// model Vendor {
+//   id            String   @id @default(cuid())
+//   userId        String   @unique
+//   storeName     String
+//   slug          String   @unique
+//   about         String?  @db.Text
+//   totalSales    Int      @default(0)
+//   avatarUrl     String?
+//   coverImageUrl String?
+//   location      String?
+//   website       String?
+//   joinedAt      DateTime @default(now())
+//   updatedAt     DateTime @updatedAt
+
+//   // Relations
+//   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   products Product[]
+
+//   @@index([slug])
+//   @@index([userId])
+//   @@map("vendors")
+// }
+
+// // ========================================
+// // PRODUCT CORE
+// // ========================================
+
+// enum ProductCategory {
+//   THEME
+//   PLUGIN
+//   GRAPHIC
+//   JS_MOBILE
+//   JS_WEB
+//   PHP
+//   WORDPRESS
+//   HTML
+//   OTHER
+// }
+
+// enum ProductStatus {
+//   DRAFT
+//   PUBLISHED
+//   ARCHIVED
+// }
+
+// model Product {
+//   id               String          @id @default(cuid())
+//   vendorId         String
+//   title            String
+//   slug             String          @unique
+//   price            Decimal         @db.Decimal(10, 2)
+//   currency         String          @default("USD")
+//   salesCount       Int             @default(0)
+//   averageRating    Decimal         @default(0) @db.Decimal(3, 2)
+//   shortDescription String?         @db.Text
+//   longDescription  String?         @db.Text
+//   thumbnailUrl     String?
+  
+//   // Technical Specifications
+//   isHighResolution Boolean         @default(false)
+//   isWidgetReady    Boolean         @default(false)
+//   layout           String?         // "Responsive", "Fixed", etc.
+//   fileSize         String?         // "25.3 MB"
+//   framework        String?         // "Underscores", "Custom", etc.
+  
+//   // Categorization
+//   category         ProductCategory @default(THEME)
+//   subcategory      String?
+//   status           ProductStatus   @default(DRAFT)
+  
+//   // Dates
+//   publishedAt      DateTime?
+//   lastUpdate       DateTime        @default(now())
+//   createdAt        DateTime        @default(now())
+//   updatedAt        DateTime        @updatedAt
+
+//   // Relations
+//   vendor                   Vendor                    @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+//   reviews                  Review[]
+//   productTags              ProductTag[]
+//   productCompatibles       ProductCompatible[]
+//   productSoftwareVersions  ProductSoftwareVersion[]
+//   productBrowsers          ProductBrowser[]
+//   productFeatures          ProductFeature[]
+//   productFiles             ProductFile[]
+//   productImages            ProductImage[]
+//   purchases                Purchase[]
+
+//   @@index([vendorId])
+//   @@index([slug])
+//   @@index([category])
+//   @@index([status])
+//   @@index([publishedAt])
+//   @@map("products")
+// }
+
+// model ProductFile {
+//   id            String   @id @default(cuid())
+//   productId     String
+//   fileName      String
+//   fileUrl       String
+//   fileType      String   // "zip", "pdf", etc.
+//   fileSizeBytes BigInt
+//   version       String?
+//   uploadedAt    DateTime @default(now())
+
+//   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+//   @@index([productId])
+//   @@map("product_files")
+// }
+
+// model ProductImage {
+//   id           String   @id @default(cuid())
+//   productId    String
+//   imageUrl     String
+//   displayOrder Int      @default(0)
+//   isPreview    Boolean  @default(false)
+//   uploadedAt   DateTime @default(now())
+
+//   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+//   @@index([productId])
+//   @@map("product_images")
+// }
+
+// // ========================================
+// // PRODUCT ATTRIBUTES (Many-to-Many)
+// // ========================================
+
+// // Tags (e.g., saas, wordpress, theme)
+// model Tag {
+//   id         String   @id @default(cuid())
+//   name       String   @unique
+//   slug       String   @unique
+//   usageCount Int      @default(0)
+//   createdAt  DateTime @default(now())
+
+//   productTags ProductTag[]
+
+//   @@index([slug])
+//   @@map("tags")
+// }
+
+// model ProductTag {
+//   id        String   @id @default(cuid())
+//   productId String
+//   tagId     String
+//   createdAt DateTime @default(now())
+
+//   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+//   tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+//   @@unique([productId, tagId])
+//   @@index([productId])
+//   @@index([tagId])
+//   @@map("product_tags")
+// }
+
+// // Compatible With (e.g., Elementor, WooCommerce 6.x)
+// model Compatible {
+//   id        String   @id @default(cuid())
+//   name      String   @unique
+//   version   String?
+//   type      String?  // "Page Builder", "Plugin", "Framework"
+//   createdAt DateTime @default(now())
+
+//   productCompatibles ProductCompatible[]
+
+//   @@map("compatibles")
+// }
+
+// model ProductCompatible {
+//   id           String   @id @default(cuid())
+//   productId    String
+//   compatibleId String
+//   createdAt    DateTime @default(now())
+
+//   product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+//   compatible Compatible @relation(fields: [compatibleId], references: [id], onDelete: Cascade)
+
+//   @@unique([productId, compatibleId])
+//   @@index([productId])
+//   @@index([compatibleId])
+//   @@map("product_compatibles")
+// }
+
+// // Software Versions (e.g., WordPress 6.0, PHP 8.0)
+// model SoftwareVersion {
+//   id          String    @id @default(cuid())
+//   software    String    // "WordPress", "PHP", "MySQL"
+//   version     String    // "6.0", "8.0"
+//   releaseDate DateTime?
+//   createdAt   DateTime  @default(now())
+
+//   productSoftwareVersions ProductSoftwareVersion[]
+
+//   @@unique([software, version])
+//   @@map("software_versions")
+// }
+
+// model ProductSoftwareVersion {
+//   id                String   @id @default(cuid())
+//   productId         String
+//   softwareVersionId String
+//   createdAt         DateTime @default(now())
+
+//   product         Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+//   softwareVersion SoftwareVersion @relation(fields: [softwareVersionId], references: [id], onDelete: Cascade)
+
+//   @@unique([productId, softwareVersionId])
+//   @@index([productId])
+//   @@index([softwareVersionId])
+//   @@map("product_software_versions")
+// }
+
+// // Browsers (e.g., Firefox, Chrome, Edge)
+// model Browser {
+//   id         String   @id @default(cuid())
+//   name       String   @unique
+//   minVersion String?
+//   createdAt  DateTime @default(now())
+
+//   productBrowsers ProductBrowser[]
+
+//   @@map("browsers")
+// }
+
+// model ProductBrowser {
+//   id        String   @id @default(cuid())
+//   productId String
+//   browserId String
+//   createdAt DateTime @default(now())
+
+//   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+//   browser Browser @relation(fields: [browserId], references: [id], onDelete: Cascade)
+
+//   @@unique([productId, browserId])
+//   @@index([productId])
+//   @@index([browserId])
+//   @@map("product_browsers")
+// }
+
+// // Features (e.g., "One Click Demo Import")
+// model Feature {
+//   id          String   @id @default(cuid())
+//   name        String   @unique
+//   description String?  @db.Text
+//   category    String?  // "Performance", "SEO", "UX"
+//   createdAt   DateTime @default(now())
+
+//   productFeatures ProductFeature[]
+
+//   @@map("features")
+// }
+
+// model ProductFeature {
+//   id        String   @id @default(cuid())
+//   productId String
+//   featureId String
+//   createdAt DateTime @default(now())
+
+//   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+//   feature Feature @relation(fields: [featureId], references: [id], onDelete: Cascade)
+
+//   @@unique([productId, featureId])
+//   @@index([productId])
+//   @@index([featureId])
+//   @@map("product_features")
+// }
+
+// // ========================================
+// // REVIEWS & RATINGS
+// // ========================================
+
+// model Review {
+//   id                 String   @id @default(cuid())
+//   userId             String
+//   productId          String
+//   rating             Int      // 1 to 5
+//   comment            String?  @db.Text
+//   isVerifiedPurchase Boolean  @default(false)
+//   helpfulCount       Int      @default(0)
+//   createdAt          DateTime @default(now())
+//   updatedAt          DateTime @updatedAt
+
+//   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+//   @@index([userId])
+//   @@index([productId])
+//   @@index([rating])
+//   @@map("reviews")
+// }
+
+// // ========================================
+// // TRANSACTIONS & PURCHASES
+// // ========================================
+
+// enum PurchaseStatus {
+//   PENDING
+//   COMPLETED
+//   REFUNDED
+//   FAILED
+// }
+
+// model Purchase {
+//   id            String         @id @default(cuid())
+//   userId        String
+//   productId     String
+//   amount        Decimal        @db.Decimal(10, 2)
+//   currency      String         @default("USD")
+//   status        PurchaseStatus @default(PENDING)
+//   paymentMethod String?
+//   transactionId String?        @unique
+//   purchasedAt   DateTime       @default(now())
+//   refundedAt    DateTime?
+//   updatedAt     DateTime       @updatedAt
+
+//   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+//   @@index([userId])
+//   @@index([productId])
+//   @@index([status])
+//   @@index([purchasedAt])
+//   @@map("purchases")
+// }
+
+
+
+// ============================================================================
+// القسم الأول: نظام المصادقة وإدارة المستخدمين (NextAuth.js)
+// ============================================================================
+// هذا القسم متوافق تماماً مع مكتبة NextAuth.js للمصادقة
+
+// ============================
+// تعريف أدوار المستخدمين
+// ============================
+// Enum لتحديد الأدوار المتاحة في النظام
 enum UserRole {
-  USER
-  ADMIN
-  VENDOR
+  USER    // مستخدم عادي (مشتري)
+  ADMIN   // مدير النظام (صلاحيات كاملة)
+  VENDOR  // بائع (يمكنه بيع المنتجات)
 }
 
+// ============================
+// جدول المستخدمين الرئيسي
+// ============================
+// يحتوي على كل المعلومات الأساسية للمستخدمين
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?   // Hashed, nullable for OAuth users
-  role          UserRole  @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  // ====== الحقول الأساسية ======
+  id            String    @id @default(cuid())  // معرّف فريد (CUID أكثر أماناً من UUID)
+  name          String?                         // اسم المستخدم (اختياري)
+  email         String    @unique               // البريد الإلكتروني (فريد لكل مستخدم)
+  emailVerified DateTime?                       // تاريخ تأكيد البريد (null إذا لم يتم التأكيد)
+  image         String?                         // رابط صورة الملف الشخصي
+  password      String?                         // كلمة المرور المشفرة (null للمستخدمين عبر OAuth)
+  role          UserRole  @default(USER)        // دور المستخدم (افتراضياً: مستخدم عادي)
+  
+  // ====== حقول التتبع الزمني ======
+  createdAt     DateTime  @default(now())       // تاريخ إنشاء الحساب
+  updatedAt     DateTime  @updatedAt            // تاريخ آخر تحديث (يُحدّث تلقائياً)
 
-  // Relations
-  accounts  Account[]
-  sessions  Session[]
-  vendor    Vendor?
-  reviews   Review[]
-  purchases Purchase[]
+  // ====== العلاقات مع الجداول الأخرى ======
+  accounts  Account[]   // حسابات OAuth المرتبطة (Google, GitHub, etc.)
+  sessions  Session[]   // جلسات تسجيل الدخول النشطة
+  vendor    Vendor?     // متجر البائع (إذا كان المستخدم بائعاً) - علاقة واحد لواحد
+  reviews   Review[]    // التقييمات التي كتبها المستخدم
+  purchases Purchase[]  // المشتريات التي قام بها
 
-  @@index([email])
-  @@map("users")
+  // ====== الفهارس لتحسين الأداء ======
+  @@index([email])      // فهرس على البريد لتسريع عمليات البحث وتسجيل الدخول
+  @@map("users")        // اسم الجدول في قاعدة البيانات
 }
 
+// ============================
+// جدول الحسابات (OAuth)
+// ============================
+// يُستخدم لتخزين معلومات تسجيل الدخول عبر مزودي الخدمة الخارجيين
 model Account {
   id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
+  userId            String                          // معرّف المستخدم المالك
+  type              String                          // نوع الحساب: "oauth" أو "email"
+  provider          String                          // المزود: "google", "github", etc.
+  providerAccountId String                          // معرّف الحساب عند المزود
+  
+  // ====== معلومات OAuth ======
+  refresh_token     String? @db.Text                // رمز التحديث (للحصول على access token جديد)
+  access_token      String? @db.Text                // رمز الوصول (للتفاعل مع API المزود)
+  expires_at        Int?                            // تاريخ انتهاء الرمز (timestamp)
+  token_type        String?                         // نوع الرمز: "Bearer" عادةً
+  scope             String?                         // الصلاحيات الممنوحة
+  id_token          String? @db.Text                // رمز الهوية (OpenID Connect)
+  session_state     String?                         // حالة الجلسة
 
+  // ====== العلاقات ======
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // عند حذف المستخدم، تُحذف كل حساباته تلقائياً
 
-  @@unique([provider, providerAccountId])
-  @@index([userId])
+  // ====== القيود والفهارس ======
+  @@unique([provider, providerAccountId])  // لا يمكن ربط نفس الحساب مرتين
+  @@index([userId])                        // فهرس للبحث السريع بمعرف المستخدم
   @@map("accounts")
 }
 
+// ============================
+// جدول الجلسات
+// ============================
+// يُستخدم لتتبع جلسات المستخدمين النشطة
 model Session {
   id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
+  sessionToken String   @unique            // رمز الجلسة الفريد (يُرسل في الكوكيز)
+  userId       String                      // معرّف المستخدم المالك للجلسة
+  expires      DateTime                    // تاريخ انتهاء الجلسة
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -71,124 +519,157 @@ model Session {
   @@map("sessions")
 }
 
+// ============================
+// جدول رموز التحقق
+// ============================
+// يُستخدم لتخزين رموز تأكيد البريد الإلكتروني وإعادة تعيين كلمة المرور
 model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+  identifier String    // البريد الإلكتروني أو رقم الهاتف
+  token      String    @unique  // الرمز الفريد المُرسل للمستخدم
+  expires    DateTime  // تاريخ انتهاء صلاحية الرمز
 
-  @@unique([identifier, token])
+  @@unique([identifier, token])  // كل رمز مرتبط بمعرّف واحد فقط
   @@map("verification_tokens")
 }
 
-// ========================================
-// VENDOR SYSTEM
-// ========================================
+// ============================================================================
+// القسم الثاني: نظام البائعين (Vendors)
+// ============================================================================
+// يسمح للمستخدمين بإنشاء متاجر خاصة بهم
 
+// ============================
+// جدول البائعين
+// ============================
 model Vendor {
+  // ====== المعلومات الأساسية ======
   id            String   @id @default(cuid())
-  userId        String   @unique
-  storeName     String
-  slug          String   @unique
-  about         String?  @db.Text
-  totalSales    Int      @default(0)
-  avatarUrl     String?
-  coverImageUrl String?
-  location      String?
-  website       String?
-  joinedAt      DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  userId        String   @unique              // معرّف المستخدم (علاقة واحد لواحد)
+  storeName     String                        // اسم المتجر
+  slug          String   @unique              // معرّف فريد للرابط (e.g., /vendor/colourdev)
+  about         String?  @db.Text             // نبذة عن البائع/المتجر
+  
+  // ====== إحصائيات ومعلومات إضافية ======
+  totalSales    Int      @default(0)          // إجمالي عدد المبيعات
+  avatarUrl     String?                       // صورة شعار المتجر
+  coverImageUrl String?                       // صورة الغلاف
+  location      String?                       // الموقع الجغرافي (اختياري)
+  website       String?                       // موقع إلكتروني خارجي (اختياري)
+  
+  // ====== التواريخ ======
+  joinedAt      DateTime @default(now())      // تاريخ الانضمام كبائع
+  updatedAt     DateTime @updatedAt           // تاريخ آخر تحديث
 
-  // Relations
+  // ====== العلاقات ======
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  products Product[]
+  products Product[] // كل المنتجات التي يبيعها هذا البائع
 
-  @@index([slug])
+  // ====== الفهارس ======
+  @@index([slug])    // للبحث السريع عن المتجر بالـ slug
   @@index([userId])
   @@map("vendors")
 }
 
-// ========================================
-// PRODUCT CORE
-// ========================================
+// ============================================================================
+// القسم الثالث: المنتجات الأساسية
+// ============================================================================
 
+// ============================
+// تصنيفات المنتجات
+// ============================
 enum ProductCategory {
-  THEME
-  PLUGIN
-  GRAPHIC
-  JS_MOBILE
-  JS_WEB
-  PHP
-  WORDPRESS
-  HTML
-  OTHER
+  THEME      // قوالب ووردبريس
+  PLUGIN     // إضافات
+  GRAPHIC    // تصاميم جرافيكية
+  JS_MOBILE  // تطبيقات JavaScript للموبايل
+  JS_WEB     // تطبيقات JavaScript للويب
+  PHP        // سكريبتات PHP
+  WORDPRESS  // منتجات ووردبريس عامة
+  HTML       // قوالب HTML
+  OTHER      // أخرى
 }
 
+// ============================
+// حالات المنتج
+// ============================
 enum ProductStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
+  DRAFT      // مسودة (غير منشور)
+  PUBLISHED  // منشور ومتاح للبيع
+  ARCHIVED   // مؤرشف (غير متاح)
 }
 
+// ============================
+// جدول المنتجات الرئيسي
+// ============================
 model Product {
+  // ====== المعلومات الأساسية ======
   id               String          @id @default(cuid())
-  vendorId         String
-  title            String
-  slug             String          @unique
-  price            Decimal         @db.Decimal(10, 2)
-  currency         String          @default("USD")
-  salesCount       Int             @default(0)
-  averageRating    Decimal         @default(0) @db.Decimal(3, 2)
-  shortDescription String?         @db.Text
-  longDescription  String?         @db.Text
-  thumbnailUrl     String?
+  vendorId         String                                // معرّف البائع
+  title            String                                // عنوان المنتج
+  slug             String          @unique               // معرّف فريد للرابط
+  price            Decimal         @db.Decimal(10, 2)    // السعر (دقة عشرية: 10 أرقام، 2 بعد الفاصلة)
+  currency         String          @default("USD")       // العملة (افتراضياً: دولار أمريكي)
   
-  // Technical Specifications
-  isHighResolution Boolean         @default(false)
-  isWidgetReady    Boolean         @default(false)
-  layout           String?         // "Responsive", "Fixed", etc.
-  fileSize         String?         // "25.3 MB"
-  framework        String?         // "Underscores", "Custom", etc.
+  // ====== الإحصائيات ======
+  salesCount       Int             @default(0)           // عدد المبيعات
+  averageRating    Decimal         @default(0) @db.Decimal(3, 2)  // متوسط التقييم (من 0.00 إلى 5.00)
   
-  // Categorization
-  category         ProductCategory @default(THEME)
-  subcategory      String?
-  status           ProductStatus   @default(DRAFT)
+  // ====== الأوصاف ======
+  shortDescription String?         @db.Text              // وصف مختصر
+  longDescription  String?         @db.Text              // وصف تفصيلي
+  thumbnailUrl     String?                               // صورة مصغرة رئيسية
   
-  // Dates
-  publishedAt      DateTime?
-  lastUpdate       DateTime        @default(now())
+  // ====== المواصفات التقنية ======
+  isHighResolution Boolean         @default(false)       // هل المنتج بدقة عالية؟
+  isWidgetReady    Boolean         @default(false)       // هل يدعم الـ Widgets؟
+  layout           String?                               // نوع التخطيط: "Responsive", "Fixed"
+  fileSize         String?                               // حجم الملف: "25.3 MB"
+  framework        String?                               // إطار العمل: "Underscores", "Custom"
+  
+  // ====== التصنيف ======
+  category         ProductCategory @default(THEME)       // التصنيف الرئيسي
+  subcategory      String?                               // تصنيف فرعي (اختياري)
+  status           ProductStatus   @default(DRAFT)       // حالة المنتج
+  
+  // ====== التواريخ ======
+  publishedAt      DateTime?                             // تاريخ النشر (null إذا لم يُنشر بعد)
+  lastUpdate       DateTime        @default(now())       // تاريخ آخر تحديث للمنتج
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
-  // Relations
+  // ====== العلاقات مع الجداول الأخرى ======
   vendor                   Vendor                    @relation(fields: [vendorId], references: [id], onDelete: Cascade)
-  reviews                  Review[]
-  productTags              ProductTag[]
-  productCompatibles       ProductCompatible[]
-  productSoftwareVersions  ProductSoftwareVersion[]
-  productBrowsers          ProductBrowser[]
-  productFeatures          ProductFeature[]
-  productFiles             ProductFile[]
-  productImages            ProductImage[]
-  purchases                Purchase[]
+  reviews                  Review[]                  // التقييمات
+  productTags              ProductTag[]              // الوسوم (tags)
+  productCompatibles       ProductCompatible[]       // التوافقات (Elementor, WooCommerce, etc.)
+  productSoftwareVersions  ProductSoftwareVersion[]  // إصدارات البرمجيات المدعومة
+  productBrowsers          ProductBrowser[]          // المتصفحات المدعومة
+  productFeatures          ProductFeature[]          // الميزات
+  productFiles             ProductFile[]             // الملفات القابلة للتحميل
+  productImages            ProductImage[]            // معرض الصور
+  purchases                Purchase[]                // سجل المشتريات
 
-  @@index([vendorId])
-  @@index([slug])
-  @@index([category])
-  @@index([status])
-  @@index([publishedAt])
+  // ====== الفهارس ======
+  @@index([vendorId])       // للبحث عن منتجات بائع معين
+  @@index([slug])           // للوصول السريع للمنتج عبر الرابط
+  @@index([category])       // للتصفية حسب التصنيف
+  @@index([status])         // لعرض المنتجات المنشورة فقط
+  @@index([publishedAt])    // لترتيب المنتجات حسب تاريخ النشر
   @@map("products")
 }
 
+// ============================
+// جدول ملفات المنتج
+// ============================
+// يحتوي على الملفات القابلة للتحميل (ZIP, PDF, etc.)
 model ProductFile {
   id            String   @id @default(cuid())
-  productId     String
-  fileName      String
-  fileUrl       String
-  fileType      String   // "zip", "pdf", etc.
-  fileSizeBytes BigInt
-  version       String?
-  uploadedAt    DateTime @default(now())
+  productId     String                           // معرّف المنتج
+  fileName      String                           // اسم الملف
+  fileUrl       String                           // رابط التحميل
+  fileType      String                           // نوع الملف: "zip", "pdf"
+  fileSizeBytes BigInt                           // حجم الملف بالبايت
+  version       String?                          // رقم الإصدار (اختياري)
+  uploadedAt    DateTime @default(now())         // تاريخ الرفع
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
@@ -196,12 +677,16 @@ model ProductFile {
   @@map("product_files")
 }
 
+// ============================
+// جدول صور المنتج
+// ============================
+// معرض الصور (screenshots, previews)
 model ProductImage {
   id           String   @id @default(cuid())
   productId    String
-  imageUrl     String
-  displayOrder Int      @default(0)
-  isPreview    Boolean  @default(false)
+  imageUrl     String                            // رابط الصورة
+  displayOrder Int      @default(0)              // ترتيب العرض
+  isPreview    Boolean  @default(false)          // هل هذه صورة معاينة رئيسية؟
   uploadedAt   DateTime @default(now())
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -210,24 +695,29 @@ model ProductImage {
   @@map("product_images")
 }
 
-// ========================================
-// PRODUCT ATTRIBUTES (Many-to-Many)
-// ========================================
+// ============================================================================
+// القسم الرابع: خصائص المنتج (Many-to-Many Relationships)
+// ============================================================================
+// هذا القسم يسمح بإضافة خصائص متعددة لكل منتج بطريقة مرنة
 
-// Tags (e.g., saas, wordpress, theme)
+// ============================
+// الوسوم (Tags)
+// ============================
+// أمثلة: "saas", "wordpress", "responsive", "ecommerce"
 model Tag {
   id         String   @id @default(cuid())
-  name       String   @unique
-  slug       String   @unique
-  usageCount Int      @default(0)
+  name       String   @unique                    // اسم الوسم (فريد)
+  slug       String   @unique                    // معرّف للرابط
+  usageCount Int      @default(0)               // عدد المنتجات المستخدمة لهذا الوسم
   createdAt  DateTime @default(now())
 
-  productTags ProductTag[]
+  productTags ProductTag[]  // العلاقة مع المنتجات
 
   @@index([slug])
   @@map("tags")
 }
 
+// جدول وسيط لربط المنتجات بالوسوم (Many-to-Many)
 model ProductTag {
   id        String   @id @default(cuid())
   productId String
@@ -237,18 +727,21 @@ model ProductTag {
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
-  @@unique([productId, tagId])
+  @@unique([productId, tagId])  // منع تكرار نفس الوسم للمنتج الواحد
   @@index([productId])
   @@index([tagId])
   @@map("product_tags")
 }
 
-// Compatible With (e.g., Elementor, WooCommerce 6.x)
+// ============================
+// التوافقات (Compatibility)
+// ============================
+// أمثلة: "Elementor 3.0", "WooCommerce 6.x", "Contact Form 7"
 model Compatible {
   id        String   @id @default(cuid())
-  name      String   @unique
-  version   String?
-  type      String?  // "Page Builder", "Plugin", "Framework"
+  name      String   @unique                    // اسم الأداة/الإضافة
+  version   String?                             // الإصدار (اختياري)
+  type      String?                             // النوع: "Page Builder", "Plugin", "Framework"
   createdAt DateTime @default(now())
 
   productCompatibles ProductCompatible[]
@@ -256,6 +749,7 @@ model Compatible {
   @@map("compatibles")
 }
 
+// جدول وسيط لربط المنتجات بالتوافقات
 model ProductCompatible {
   id           String   @id @default(cuid())
   productId    String
@@ -271,20 +765,24 @@ model ProductCompatible {
   @@map("product_compatibles")
 }
 
-// Software Versions (e.g., WordPress 6.0, PHP 8.0)
+// ============================
+// إصدارات البرمجيات
+// ============================
+// أمثلة: "WordPress 6.0", "PHP 8.0", "MySQL 8.0"
 model SoftwareVersion {
   id          String    @id @default(cuid())
-  software    String    // "WordPress", "PHP", "MySQL"
-  version     String    // "6.0", "8.0"
-  releaseDate DateTime?
+  software    String                           // اسم البرنامج: "WordPress", "PHP"
+  version     String                           // رقم الإصدار: "6.0", "8.0"
+  releaseDate DateTime?                        // تاريخ إصدار هذا الإصدار (اختياري)
   createdAt   DateTime  @default(now())
 
   productSoftwareVersions ProductSoftwareVersion[]
 
-  @@unique([software, version])
+  @@unique([software, version])  // منع تكرار نفس الإصدار
   @@map("software_versions")
 }
 
+// جدول وسيط لربط المنتجات بإصدارات البرمجيات
 model ProductSoftwareVersion {
   id                String   @id @default(cuid())
   productId         String
@@ -300,11 +798,14 @@ model ProductSoftwareVersion {
   @@map("product_software_versions")
 }
 
-// Browsers (e.g., Firefox, Chrome, Edge)
+// ============================
+// المتصفحات المدعومة
+// ============================
+// أمثلة: "Firefox", "Chrome 90+", "Safari", "Edge"
 model Browser {
   id         String   @id @default(cuid())
-  name       String   @unique
-  minVersion String?
+  name       String   @unique                   // اسم المتصفح
+  minVersion String?                            // الحد الأدنى من الإصدار (اختياري)
   createdAt  DateTime @default(now())
 
   productBrowsers ProductBrowser[]
@@ -312,6 +813,7 @@ model Browser {
   @@map("browsers")
 }
 
+// جدول وسيط لربط المنتجات بالمتصفحات
 model ProductBrowser {
   id        String   @id @default(cuid())
   productId String
@@ -327,12 +829,15 @@ model ProductBrowser {
   @@map("product_browsers")
 }
 
-// Features (e.g., "One Click Demo Import")
+// ============================
+// الميزات (Features)
+// ============================
+// أمثلة: "One Click Demo Import", "SEO Optimized", "RTL Support"
 model Feature {
   id          String   @id @default(cuid())
-  name        String   @unique
-  description String?  @db.Text
-  category    String?  // "Performance", "SEO", "UX"
+  name        String   @unique                  // اسم الميزة
+  description String?  @db.Text                 // وصف الميزة
+  category    String?                           // تصنيف: "Performance", "SEO", "UX"
   createdAt   DateTime @default(now())
 
   productFeatures ProductFeature[]
@@ -340,6 +845,7 @@ model Feature {
   @@map("features")
 }
 
+// جدول وسيط لربط المنتجات بالميزات
 model ProductFeature {
   id        String   @id @default(cuid())
   productId String
@@ -355,60 +861,96 @@ model ProductFeature {
   @@map("product_features")
 }
 
-// ========================================
-// REVIEWS & RATINGS
-// ========================================
+// ============================================================================
+// القسم الخامس: التقييمات والمراجعات
+// ============================================================================
 
+// ============================
+// جدول التقييمات
+// ============================
 model Review {
   id                 String   @id @default(cuid())
-  userId             String
-  productId          String
-  rating             Int      // 1 to 5
-  comment            String?  @db.Text
-  isVerifiedPurchase Boolean  @default(false)
-  helpfulCount       Int      @default(0)
+  userId             String                      // المستخدم الذي كتب التقييم
+  productId          String                      // المنتج المُقيّم
+  rating             Int                         // التقييم من 1 إلى 5
+  comment            String?  @db.Text           // تعليق نصي (اختياري)
+  isVerifiedPurchase Boolean  @default(false)    // هل هذا مشتري حقيقي؟
+  helpfulCount       Int      @default(0)        // عدد الأشخاص الذين وجدوا التقييم مفيداً
   createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  updatedAt          DateTime @updatedAt         // يسمح بتعديل التقييم
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
-  @@index([productId])
-  @@index([rating])
+  @@index([userId])     // للبحث عن كل تقييمات مستخدم معين
+  @@index([productId])  // للبحث عن كل تقييمات منتج معين
+  @@index([rating])     // للتصفية حسب التقييم
   @@map("reviews")
 }
 
-// ========================================
-// TRANSACTIONS & PURCHASES
-// ========================================
+// ============================================================================
+// القسم السادس: المعاملات والمشتريات
+// ============================================================================
 
+// ============================
+// حالات الشراء
+// ============================
 enum PurchaseStatus {
-  PENDING
-  COMPLETED
-  REFUNDED
-  FAILED
+  PENDING   // قيد الانتظار (لم تكتمل الدفعة)
+  COMPLETED // مكتملة (تمت الدفعة بنجاح)
+  REFUNDED  // مُسترَدة (تم استرجاع المبلغ)
+  FAILED    // فشلت (خطأ في الدفع)
 }
 
+// ============================
+// جدول المشتريات
+// ============================
 model Purchase {
   id            String         @id @default(cuid())
-  userId        String
-  productId     String
-  amount        Decimal        @db.Decimal(10, 2)
-  currency      String         @default("USD")
-  status        PurchaseStatus @default(PENDING)
-  paymentMethod String?
-  transactionId String?        @unique
-  purchasedAt   DateTime       @default(now())
-  refundedAt    DateTime?
+  userId        String                              // المشتري
+  productId     String                              // المنتج المشترى
+  amount        Decimal        @db.Decimal(10, 2)   // المبلغ المدفوع
+  currency      String         @default("USD")      // العملة
+  status        PurchaseStatus @default(PENDING)    // حالة الشراء
+  paymentMethod String?                             // طريقة الدفع: "stripe", "paypal"
+  transactionId String?        @unique              // معرّف المعاملة من بوابة الدفع
+  purchasedAt   DateTime       @default(now())      // تاريخ الشراء
+  refundedAt    DateTime?                           // تاريخ الاسترجاع (إن وُجد)
   updatedAt     DateTime       @updatedAt
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
-  @@index([productId])
-  @@index([status])
-  @@index([purchasedAt])
+  @@index([userId])       // لعرض سجل مشتريات المستخدم
+  @@index([productId])    // لعرض سجل مبيعات المنتج
+  @@index([status])       // للتصفية حسب الحالة
+  @@index([purchasedAt])  // لترتيب المشتريات حسب التاريخ
   @@map("purchases")
 }
+
+// ============================================================================
+// ملاحظات مهمة للمطورين:
+// ============================================================================
+// 
+// 1. العلاقات:
+//    - One-to-Many: User -> Reviews (مستخدم واحد له عدة تقييمات)
+//    - Many-to-Many: Product <-> Tags (منتج له عدة وسوم، والوسم يُستخدم في عدة منتجات)
+//    - One-to-One: User <-> Vendor (مستخدم واحد له متجر واحد فقط)
+//
+// 2. الحذف المتسلسل (Cascade Delete):
+//    - عند حذف مستخدم، تُحذف كل بياناته (حسابات، جلسات، تقييمات، مشتريات)
+//    - عند حذف منتج، تُحذف كل الملفات والصور والعلاقات المرتبطة به
+//
+// 3. الفهارس (Indexes):
+//    - مضافة على الحقول كثيرة الاستخدام في البحث والتصفية
+//    - تُحسّن الأداء بشكل كبير في قواعد البيانات الكبيرة
+//
+// 4. القيود الفريدة (Unique Constraints):
+//    - تمنع تكرار البيانات (مثل: نفس البريد الإلكتروني مرتين)
+//    - مهمة للحفاظ على سلامة البيانات
+//
+// 5. الحقول الاختيارية (Optional Fields):
+//    - المحددة بـ ؟ (String?) يمكن أن تكون null
+//    - مفيدة للبيانات غير الضرورية
+//
+// ============================================================================
