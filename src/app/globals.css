@@ -135,7 +135,7 @@
     );
   }
   .wrapper {
-    @apply px-4 md:mx-auto max-w-7xl overflow-hidden;
+    @apply px-4 md:mx-auto max-w-[1320px] overflow-hidden;
   }
   .flex-center {
     @apply flex items-center justify-center;
@@ -143,7 +143,13 @@
   .flex-between {
     @apply flex items-center justify-between;
   }
-   
+  .flex-end {
+    @apply flex items-center justify-end;
+  }
+  .flex-start {
+    @apply flex items-center justify-start;
+  }
+
   .bold-h1 {
     @apply text-4xl md:text-6xl font-bold;
   }
@@ -153,5 +159,4 @@
   .bold-h3 {
     @apply text-2xl md:text-4xl font-bold;
   }
-
 }

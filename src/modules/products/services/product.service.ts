@@ -6,12 +6,21 @@ import { ProductDTO } from "@/shared/types";
 export const mapProductToDTO = (product: Product): ProductDTO => {
   return {
     ...product,
-    price: product.price.toNumber(),
-    averageRating: product.averageRating.toNumber(),
+    originalPrice: product.originalPrice?.toNumber() ?? 0,
+    price: product.price?.toNumber() ?? 0,
+    discount: product.discount?.toNumber() ?? 0,
+    averageRating: product.averageRating?.toNumber() ?? 0,
+    currency: "USD", // Default currency - change as needed
     publishedAt: product.publishedAt ? product.publishedAt.toISOString() : null,
-    lastUpdate: product.lastUpdate.toISOString(),
-    createdAt: product.createdAt.toISOString(),
-    updatedAt: product.updatedAt.toISOString(),
+    lastUpdate: product.lastUpdate
+      ? product.lastUpdate.toISOString()
+      : new Date().toISOString(),
+    createdAt: product.createdAt
+      ? product.createdAt.toISOString()
+      : new Date().toISOString(),
+    updatedAt: product.updatedAt
+      ? product.updatedAt.toISOString()
+      : new Date().toISOString(),
   };
 };
 

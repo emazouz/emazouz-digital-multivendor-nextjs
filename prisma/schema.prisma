@@ -179,8 +179,9 @@ model Product {
   vendorId         String                                // معرّف البائع
   title            String                                // عنوان المنتج
   slug             String          @unique               // معرّف فريد للرابط
+  originalPrice    Decimal         @default(0) @db.Decimal(10, 2)    // السعر الأصلي (دقة عشرية: 10 أرقام، 2 بعد الفاصلة)
   price            Decimal         @db.Decimal(10, 2)    // السعر (دقة عشرية: 10 أرقام، 2 بعد الفاصلة)
-  currency         String          @default("USD")       // العملة (افتراضياً: دولار أمريكي)
+  discount         Decimal         @default(0) @db.Decimal(3, 2)  // الخصم (من 0.00 إلى 100.00)
   
   // ====== الإحصائيات ======
   salesCount       Int             @default(0)           // عدد المبيعات
@@ -194,6 +195,7 @@ model Product {
   // ====== المواصفات التقنية ======
   isHighResolution Boolean         @default(false)       // هل المنتج بدقة عالية؟
   isWidgetReady    Boolean         @default(false)       // هل يدعم الـ Widgets؟
+  isWishlisted    Boolean         @default(false)       // هل المنتج في قائمة الرغبات؟
   layout           String?                               // نوع التخطيط: "Responsive", "Fixed"
   fileSize         String?                               // حجم الملف: "25.3 MB"
   framework        String?                               // إطار العمل: "Underscores", "Custom"

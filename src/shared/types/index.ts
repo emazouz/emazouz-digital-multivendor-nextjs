@@ -6,7 +6,9 @@ export interface ProductDTO {
   vendorId: string;
   title: string;
   slug: string;
+  originalPrice: number; // Converted from Decimal
   price: number; // Converted from Decimal
+  discount: number; // Converted from Decimal
   currency: string;
   salesCount: number;
   averageRating: number; // Converted from Decimal
