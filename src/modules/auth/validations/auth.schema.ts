@@ -67,3 +67,15 @@ export const oauthProviderSchema = z.enum(["google", "github"], {
 });
 
 export type OAuthProvider = z.infer<typeof oauthProviderSchema>;
+
+export const resetSchema = z.object({
+  email: z.string().email({
+    message: "Email is required",
+  }),
+});
+
+export const newPasswordSchema = z.object({
+  password: z.string().min(6, {
+    message: "Minimum 6 characters required",
+  }),
+});

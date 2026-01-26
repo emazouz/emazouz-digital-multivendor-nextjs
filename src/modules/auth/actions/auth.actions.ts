@@ -6,11 +6,21 @@ import {
   loginSchema,
   registerSchema,
   oauthProviderSchema,
+  resetSchema,
+  newPasswordSchema,
   type LoginFormData,
   type RegisterFormData,
   type OAuthProvider,
 } from "../validations";
+import { z } from "zod";
 import type { UserRole } from "@prisma/client";
+import {
+  generatePasswordResetToken,
+  getPasswordResetTokenByToken,
+} from "@/shared/lib/tokens";
+import { sendPasswordResetEmail } from "@/shared/lib/mail";
+import { db } from "@/shared/lib/prisma";
+import bcrypt from "bcryptjs";
 
 // ========================================
 // Types
@@ -34,7 +44,6 @@ export async function loginAction(
 ): Promise<ActionResult> {
   try {
     // Validate input with Zod
-
     const validationResult = loginSchema.safeParse(formData);
 
     if (!validationResult.success) {
@@ -97,9 +106,6 @@ export async function registerAction(
 ): Promise<ActionResult> {
   try {
     // Validate input with Zod
-
-    console.log("Register action called with data:", formData);
-
     const validationResult = registerSchema.safeParse(formData);
 
     if (!validationResult.success) {
@@ -178,3 +184,79 @@ export async function oauthLoginAction(provider: OAuthProvider) {
 
   await signIn(validationResult.data, { redirectTo: "/" });
 }
+
+// ========================================
+// Reset Password Actions
+// ========================================
+
+export const reset = async (values: z.infer<typeof resetSchema>) => {
+  const validatedFields = resetSchema.safeParse(values);
+
+  if (!validatedFields.success) {
+    return { error: "Invalid email!" };
+  }
+
+  const { email } = validatedFields.data;
+
+  const existingUser = await getUserByEmail(email);
+
+  if (!existingUser) {
+    return { error: "Email not found!" };
+  }
+
+  const passwordResetToken = await generatePasswordResetToken(email);
+  await sendPasswordResetEmail(
+    passwordResetToken.identifier,
+    passwordResetToken.token,
+  );
+
+  return { success: "Reset email sent!" };
+};
+
+export const newPassword = async (
+  values: z.infer<typeof newPasswordSchema>,
+  token: string | null,
+) => {
+  if (!token) {
+    return { error: "Missing token!" };
+  }
+
+  const validatedFields = newPasswordSchema.safeParse(values);
+
+  if (!validatedFields.success) {
+    return { error: "Invalid fields!" };
+  }
+
+  const { password } = validatedFields.data;
+
+  const existingToken = await getPasswordResetTokenByToken(token);
+
+  if (!existingToken) {
+    return { error: "Invalid token!" };
+  }
+
+  const hasExpired = new Date(existingToken.expires) < new Date();
+
+  if (hasExpired) {
+    return { error: "Token has expired!" };
+  }
+
+  const existingUser = await getUserByEmail(existingToken.identifier);
+
+  if (!existingUser) {
+    return { error: "Email does not exist!" };
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  await db.user.update({
+    where: { id: existingUser.id },
+    data: { password: hashedPassword },
+  });
+
+  await db.verificationToken.delete({
+    where: { token: existingToken.token },
+  });
+
+  return { success: "Password updated!" };
+};
