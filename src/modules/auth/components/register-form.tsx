@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, Variants } from "motion/react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -23,8 +24,9 @@ import {
 import { Label } from "@/shared/components/ui/label";
 import { Loader } from "@/shared/components/ui/loader";
 import LeftSideAuth from "./left-side";
+import { registerAction, oauthLoginAction } from "../actions/auth.actions";
+import { UserRole } from "@prisma/client";
 
-type UserRole = "USER" | "VENDOR";
 
 interface FormData {
   name: string;
@@ -36,6 +38,7 @@ interface FormData {
 }
 
 const RegisterForm = () => {
+  const router = useRouter();
   const [step, setStep] = useState<"select-role" | "form">("select-role");
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -86,12 +89,31 @@ const RegisterForm = () => {
       return;
     }
 
+    if (!selectedRole) {
+      setError("Please select a role.");
+      setIsLoading(false);
+      return;
+    }
+
+
     try {
-      console.log({ ...formData, role: selectedRole });
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      // Handle successful registration
-    } catch (err) {
-      setError("Registration failed. Please try again.");
+      const result = await registerAction({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+        role: selectedRole || "USER",
+        storeName: formData.storeName || undefined,
+      });
+
+      if (result.success) {
+        router.push("/");
+        router.refresh();
+      } else {
+        setError(result.error || "Registration failed. Please try again.");
+      }
+    } catch {
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -99,12 +121,23 @@ const RegisterForm = () => {
 
   const handleGoogleSignUp = async () => {
     try {
-      console.log("Google sign up clicked", { role: selectedRole });
-    } catch (err) {
+      setIsLoading(true);
+      await oauthLoginAction("google");
+    } catch {
       setError("Failed to sign up with Google. Please try again.");
+      setIsLoading(false);
     }
   };
 
+  const handleGitHubSignUp = async () => {
+    try {
+      setIsLoading(true);
+      await oauthLoginAction("github");
+    } catch {
+      setError("Failed to sign up with GitHub. Please try again.");
+      setIsLoading(false);
+    }
+  };
   // Animation variants
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -556,12 +589,29 @@ const RegisterForm = () => {
                         className="w-full rounded-full h-12 flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-transform"
                       >
                         <Image
-                          src="/assets/icons/google.svg"
+                          src="/assets/svg/google.svg"
                           alt="Google icon"
                           width={20}
                           height={20}
                         />
                         <span>Sign up with Google</span>
+                      </Button>
+
+                      {/* GitHub Sign Up */}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleGitHubSignUp}
+                        disabled={isLoading}
+                        className="w-full rounded-full h-12 flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                      >
+                        <Image
+                          src="/assets/svg/github.svg"
+                          alt="GitHub icon"
+                          width={20}
+                          height={20}
+                        />
+                        <span>Sign up with GitHub</span>
                       </Button>
                     </motion.div>
 

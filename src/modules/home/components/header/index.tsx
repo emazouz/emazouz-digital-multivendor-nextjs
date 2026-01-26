@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import {
   ChevronDownIcon,
   Heart,
+  LogOutIcon,
   ShoppingCartIcon,
   UserIcon,
-  MenuIcon,
 } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 
 import Logo from "@/shared/components/logo";
 import { ModeToggle } from "./mode-toggle";
@@ -17,6 +18,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import {
@@ -41,12 +43,14 @@ const PAGES_MENU = [
 ];
 
 function Header() {
-  // TODO: Replace with real auth state
-  const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean>(true);
+  const { data: session } = useSession();
+  const user = session?.user;
+
+  console.log("user: ", user);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-muted/95 backdrop-blur supports-[backdrop-filter]:bg-muted/60">
-      <div className="wrapper flex h-[70px] items-center justify-between">
+      <div className="wrapper flex h-17.5 items-center justify-between">
         <Logo />
 
         {/* Desktop Navigation */}
@@ -122,7 +126,7 @@ function Header() {
           </div>
 
           {/* User Auth */}
-          {isUserLoggedIn ? (
+          {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -130,27 +134,60 @@ function Header() {
                   className="relative h-8 w-8 rounded-full"
                 >
                   <Avatar className="h-8 w-8">
-                    <AvatarImage
-                      src="https://github.com/shadcn.png"
-                      alt="@user"
-                    />
-                    <AvatarFallback>CN</AvatarFallback>
+                    {user.image && <AvatarImage src={user.image} />}
+                    <AvatarFallback>
+                      {user.name?.charAt(0).toUpperCase() || "U"}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-8 w-8">
+                      {user.image && <AvatarImage src={user.image} />}
+                      <AvatarFallback>
+                        {user.name?.charAt(0).toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p>{user.name}</p>
+                      <p>{user.email}</p>
+                    </div>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem>Logout</DropdownMenuItem>
+                <DropdownMenuItem>Orders</DropdownMenuItem>
+                <DropdownMenuItem>Purchases</DropdownMenuItem>
+                <DropdownMenuItem>Subscriptions</DropdownMenuItem>
+                <DropdownMenuItem>Downloads</DropdownMenuItem>
+                <DropdownMenuItem>
+                  {user.role === "ADMIN" ? "Dashboard" : "Profile"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => signOut()}>
+                  <Button
+                    variant={"destructive"}
+                    size="sm"
+                    className="w-full"
+                    onClick={() => signOut()}
+                  >
+                    <LogOutIcon className="w-4 h-4" />
+                    <span>Logout</span>
+                  </Button>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <Button
               size="sm"
               className="hidden sm:flex items-center gap-2 rounded-full"
+              asChild
             >
-              <UserIcon className="w-4 h-4" />
-              <span>Create Account</span>
+              <Link href="/login">
+                <UserIcon className="w-4 h-4" />
+                <span>Create Account</span>
+              </Link>
             </Button>
           )}
 

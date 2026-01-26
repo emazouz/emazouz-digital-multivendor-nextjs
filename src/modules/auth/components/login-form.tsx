@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Variants, motion } from "motion/react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -13,8 +14,10 @@ import { Eye, EyeClosed, Mail, AlertCircle } from "lucide-react";
 import { Label } from "@/shared/components/ui/label";
 import { Loader } from "@/shared/components/ui/loader";
 import LeftSideAuth from "./left-side";
+import { loginAction, oauthLoginAction } from "../actions/auth.actions";
 
 const LoginForm = () => {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -28,10 +31,18 @@ const LoginForm = () => {
     setError("");
 
     try {
-      console.log({ email, password, keepSignedIn });
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-    } catch (err) {
-      setError("Invalid email or password. Please try again.");
+      const result = await loginAction({ email, password, keepSignedIn });
+
+      if (result.success) {
+        router.push("/");
+        router.refresh();
+      } else {
+        setError(
+          result.error || "Invalid email or password. Please try again.",
+        );
+      }
+    } catch {
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -39,9 +50,21 @@ const LoginForm = () => {
 
   const handleGoogleSignIn = async () => {
     try {
-      console.log("Google sign in clicked");
-    } catch (err) {
+      setIsLoading(true);
+      await oauthLoginAction("google");
+    } catch {
       setError("Failed to sign in with Google. Please try again.");
+      setIsLoading(false);
+    }
+  };
+
+  const handleGitHubSignIn = async () => {
+    try {
+      setIsLoading(true);
+      await oauthLoginAction("github");
+    } catch {
+      setError("Failed to sign in with GitHub. Please try again.");
+      setIsLoading(false);
     }
   };
 
@@ -66,7 +89,7 @@ const LoginForm = () => {
   return (
     <section className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
       {/* Left Side - Login Form */}
-     <LeftSideAuth />
+      <LeftSideAuth />
 
       {/* Right Side - Decorative Images */}
       <div className="relative flex items-center justify-center p-6 sm:p-8 md:p-12 bg-background order-2 lg:order-1">
@@ -230,12 +253,29 @@ const LoginForm = () => {
                 className="w-full rounded-full h-12 flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-transform"
               >
                 <Image
-                  src="/assets/icons/google.svg"
+                  src="/assets/svg/google.svg"
                   alt="Google icon"
                   width={20}
                   height={20}
                 />
                 <span>Sign in with Google</span>
+              </Button>
+
+              {/* GitHub Sign In */}
+              <Button
+                type="button"
+                variant={"outline"}
+                onClick={handleGitHubSignIn}
+                disabled={isLoading}
+                className="w-full rounded-full h-12 flex-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-transform"
+              >
+                <Image
+                  src="/assets/svg/github.svg"
+                  alt="GitHub icon"
+                  width={20}
+                  height={20}
+                />
+                <span>Sign in with GitHub</span>
               </Button>
             </motion.div>
 
