@@ -13,7 +13,6 @@ datasource db {
 enum UserRole {
   USER    // مستخدم عادي (مشتري)
   ADMIN   // مدير النظام (صلاحيات كاملة)
-  VENDOR  // بائع (يمكنه بيع المنتجات)
 }
 
 // ============================
@@ -27,22 +26,43 @@ model User {
   email         String    @unique               // البريد الإلكتروني (فريد لكل مستخدم)
   emailVerified DateTime?                       // تاريخ تأكيد البريد (null إذا لم يتم التأكيد)
   image         String?                         // رابط صورة الملف الشخصي
+  coverUrl      String?                         // صورة الغلاف
   password      String?                         // كلمة المرور المشفرة (null للمستخدمين عبر OAuth)
   role          UserRole  @default(USER)        // دور المستخدم (افتراضياً: مستخدم عادي)
+  
+  // ====== معلومات الاتصال ======
+  phone         String?                         // رقم الهاتف
+  
+  // ====== العنوان ======
+  address       String?                         // العنوان التفصيلي
+  city          String?                         // المدينة
+  state         String?                         // المنطقة/الولاية
+  postCode      String?                         // الرمز البريدي
+  country       String?                         // الدولة
+  
+  // ====== معلومات إضافية ======
+  bio           String?   @db.Text              // نبذة شخصية
+  website       String?                         // الموقع الشخصي
   
   // ====== حقول التتبع الزمني ======
   createdAt     DateTime  @default(now())       // تاريخ إنشاء الحساب
   updatedAt     DateTime  @updatedAt            // تاريخ آخر تحديث (يُحدّث تلقائياً)
 
   // ====== العلاقات مع الجداول الأخرى ======
-  accounts  Account[]   // حسابات OAuth المرتبطة (Google, GitHub, etc.)
-  sessions  Session[]   // جلسات تسجيل الدخول النشطة
-  vendor    Vendor?     // متجر البائع (إذا كان المستخدم بائعاً) - علاقة واحد لواحد
-  reviews   Review[]    // التقييمات التي كتبها المستخدم
-  purchases Purchase[]  // المشتريات التي قام بها
+  accounts      Account[]      // حسابات OAuth المرتبطة (Google, GitHub, etc.)
+  sessions      Session[]      // جلسات تسجيل الدخول النشطة
+  reviews       Review[]       // التقييمات التي كتبها المستخدم
+  purchases     Purchase[]     // المشتريات التي قام بها
+  orders        Order[]        // الطلبات
+  wishlists     Wishlist[]     // قائمة الرغبات
+  cartItems     CartItem[]     // عناصر السلة
+  couponUsages  CouponUsage[]  // استخدامات الكوبونات
+  downloads     Download[]     // سجل التحميلات
+  notifications Notification[] // الإشعارات
 
   // ====== الفهارس لتحسين الأداء ======
   @@index([email])      // فهرس على البريد لتسريع عمليات البحث وتسجيل الدخول
+  @@index([phone])      // فهرس على الهاتف
   @@map("users")        // اسم الجدول في قاعدة البيانات
 }
 
@@ -115,7 +135,6 @@ model PendingUser {
   name      String                        // اسم المستخدم
   password  String                        // كلمة المرور المشفرة
   role      UserRole @default(USER)       // دور المستخدم
-  storeName String?                       // اسم المتجر (للبائعين)
   token     String   @unique              // رمز التحقق
   expires   DateTime                      // تاريخ انتهاء صلاحية الرمز
   createdAt DateTime @default(now())      // تاريخ إنشاء الطلب
@@ -125,42 +144,6 @@ model PendingUser {
   @@map("pending_users")
 }
 
-// ============================================================================
-// القسم الثاني: نظام البائعين (Vendors)
-// ============================================================================
-// يسمح للمستخدمين بإنشاء متاجر خاصة بهم
-
-// ============================
-// جدول البائعين
-// ============================
-model Vendor {
-  // ====== المعلومات الأساسية ======
-  id            String   @id @default(cuid())
-  userId        String   @unique              // معرّف المستخدم (علاقة واحد لواحد)
-  storeName     String                        // اسم المتجر
-  slug          String   @unique              // معرّف فريد للرابط (e.g., /vendor/colourdev)
-  about         String?  @db.Text             // نبذة عن البائع/المتجر
-  
-  // ====== إحصائيات ومعلومات إضافية ======
-  totalSales    Int      @default(0)          // إجمالي عدد المبيعات
-  avatarUrl     String?                       // صورة شعار المتجر
-  coverImageUrl String?                       // صورة الغلاف
-  location      String?                       // الموقع الجغرافي (اختياري)
-  website       String?                       // موقع إلكتروني خارجي (اختياري)
-  
-  // ====== التواريخ ======
-  joinedAt      DateTime @default(now())      // تاريخ الانضمام كبائع
-  updatedAt     DateTime @updatedAt           // تاريخ آخر تحديث
-
-  // ====== العلاقات ======
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  products Product[] // كل المنتجات التي يبيعها هذا البائع
-
-  // ====== الفهارس ======
-  @@index([slug])    // للبحث السريع عن المتجر بالـ slug
-  @@index([userId])
-  @@map("vendors")
-}
 
 // ============================================================================
 // القسم الثالث: المنتجات الأساسية
@@ -196,7 +179,6 @@ enum ProductStatus {
 model Product {
   // ====== المعلومات الأساسية ======
   id               String          @id @default(cuid())
-  vendorId         String                                // معرّف البائع
   title            String                                // عنوان المنتج
   slug             String          @unique               // معرّف فريد للرابط
   originalPrice    Decimal         @default(0) @db.Decimal(10, 2)    // السعر الأصلي (دقة عشرية: 10 أرقام، 2 بعد الفاصلة)
@@ -215,7 +197,6 @@ model Product {
   // ====== المواصفات التقنية ======
   isHighResolution Boolean         @default(false)       // هل المنتج بدقة عالية؟
   isWidgetReady    Boolean         @default(false)       // هل يدعم الـ Widgets؟
-  isWishlisted    Boolean         @default(false)       // هل المنتج في قائمة الرغبات؟
   layout           String?                               // نوع التخطيط: "Responsive", "Fixed"
   fileSize         String?                               // حجم الملف: "25.3 MB"
   framework        String?                               // إطار العمل: "Underscores", "Custom"
@@ -232,7 +213,6 @@ model Product {
   updatedAt        DateTime        @updatedAt
 
   // ====== العلاقات مع الجداول الأخرى ======
-  vendor                   Vendor                    @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   reviews                  Review[]                  // التقييمات
   productTags              ProductTag[]              // الوسوم (tags)
   productCompatibles       ProductCompatible[]       // التوافقات (Elementor, WooCommerce, etc.)
@@ -242,9 +222,12 @@ model Product {
   productFiles             ProductFile[]             // الملفات القابلة للتحميل
   productImages            ProductImage[]            // معرض الصور
   purchases                Purchase[]                // سجل المشتريات
+  orderItems               OrderItem[]               // عناصر الطلبات
+  wishlists                Wishlist[]                // قائمة الرغبات
+  cartItems                CartItem[]                // عناصر السلة
+  downloads                Download[]                // سجل التحميلات
 
   // ====== الفهارس ======
-  @@index([vendorId])       // للبحث عن منتجات بائع معين
   @@index([slug])           // للوصول السريع للمنتج عبر الرابط
   @@index([category])       // للتصفية حسب التصنيف
   @@index([status])         // لعرض المنتجات المنشورة فقط
@@ -266,7 +249,8 @@ model ProductFile {
   version       String?                          // رقم الإصدار (اختياري)
   uploadedAt    DateTime @default(now())         // تاريخ الرفع
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  downloads Download[] // سجل التحميلات
 
   @@index([productId])
   @@map("product_files")
@@ -524,28 +508,278 @@ model Purchase {
 }
 
 // ============================================================================
-// ملاحظات مهمة للمطورين:
+// القسم السابع: الطلبات والدفع المباشر (Orders)
 // ============================================================================
-// 
-// 1. العلاقات:
-//    - One-to-Many: User -> Reviews (مستخدم واحد له عدة تقييمات)
-//    - Many-to-Many: Product <-> Tags (منتج له عدة وسوم، والوسم يُستخدم في عدة منتجات)
-//    - One-to-One: User <-> Vendor (مستخدم واحد له متجر واحد فقط)
-//
-// 2. الحذف المتسلسل (Cascade Delete):
-//    - عند حذف مستخدم، تُحذف كل بياناته (حسابات، جلسات، تقييمات، مشتريات)
-//    - عند حذف منتج، تُحذف كل الملفات والصور والعلاقات المرتبطة به
-//
-// 3. الفهارس (Indexes):
-//    - مضافة على الحقول كثيرة الاستخدام في البحث والتصفية
-//    - تُحسّن الأداء بشكل كبير في قواعد البيانات الكبيرة
-//
-// 4. القيود الفريدة (Unique Constraints):
-//    - تمنع تكرار البيانات (مثل: نفس البريد الإلكتروني مرتين)
-//    - مهمة للحفاظ على سلامة البيانات
-//
-// 5. الحقول الاختيارية (Optional Fields):
-//    - المحددة بـ ؟ (String?) يمكن أن تكون null
-//    - مفيدة للبيانات غير الضرورية
-//
+
+// ============================
+// طرق الدفع المدعومة
+// ============================
+enum PaymentMethod {
+  STRIPE   // الدفع عبر Stripe
+  PAYPAL   // الدفع عبر PayPal
+}
+
+// ============================
+// حالات الطلب
+// ============================
+enum OrderStatus {
+  PENDING          // قيد الانتظار (لم يتم الدفع بعد)
+  PROCESSING       // جاري المعالجة
+  PAID             // مدفوع بنجاح
+  COMPLETED        // مكتمل (تم تسليم المنتجات)
+  CANCELLED        // ملغي
+  REFUNDED         // مُسترد
+  FAILED           // فشل الدفع
+}
+
+// ============================
+// جدول الطلبات
+// ============================
+model Order {
+  id                  String        @id @default(cuid())
+  orderNumber         String        @unique              // رقم الطلب الفريد (للعرض)
+  userId              String                             // المستخدم صاحب الطلب
+  
+  // ====== معلومات الدفع ======
+  paymentMethod       PaymentMethod                      // طريقة الدفع (Stripe / PayPal)
+  paymentStatus       OrderStatus   @default(PENDING)    // حالة الطلب
+  
+  // ====== معرّفات بوابات الدفع ======
+  stripePaymentId     String?       @unique              // معرّف الدفع من Stripe
+  stripeSessionId     String?       @unique              // معرّف جلسة Checkout من Stripe
+  paypalOrderId       String?       @unique              // معرّف الطلب من PayPal
+  paypalCaptureId     String?       @unique              // معرّف التحصيل من PayPal
+  
+  // ====== المبالغ ======
+  subtotal            Decimal       @db.Decimal(10, 2)   // المجموع الفرعي (قبل الضرائب/الخصومات)
+  discount            Decimal       @default(0) @db.Decimal(10, 2)  // الخصم المُطبق
+  tax                 Decimal       @default(0) @db.Decimal(10, 2)  // الضرائب
+  total               Decimal       @db.Decimal(10, 2)   // المجموع الكلي
+  currency            String        @default("USD")      // العملة
+  
+  // ====== معلومات العميل ======
+  customerEmail       String                             // البريد الإلكتروني للفاتورة
+  customerName        String?                            // اسم العميل
+  
+  // ====== التواريخ ======
+  paidAt              DateTime?                          // تاريخ الدفع
+  completedAt         DateTime?                          // تاريخ الاكتمال
+  cancelledAt         DateTime?                          // تاريخ الإلغاء
+  refundedAt          DateTime?                          // تاريخ الاسترجاع
+  createdAt           DateTime      @default(now())      // تاريخ إنشاء الطلب
+  updatedAt           DateTime      @updatedAt
+
+  // ====== العلاقات ======
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[] // عناصر الطلب
+
+  // ====== الفهارس ======
+  @@index([userId])
+  @@index([paymentStatus])
+  @@index([paymentMethod])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+// ============================
+// جدول عناصر الطلب
+// ============================
+model OrderItem {
+  id              String   @id @default(cuid())
+  orderId         String                             // معرّف الطلب
+  productId       String                             // معرّف المنتج
+  productTitle    String                             // عنوان المنتج (للسجل)
+  productSlug     String                             // slug المنتج (للسجل)
+  price           Decimal  @db.Decimal(10, 2)        // السعر عند الشراء
+  quantity        Int      @default(1)               // الكمية
+  
+  createdAt       DateTime @default(now())
+
+  // ====== العلاقات ======
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // ====== الفهارس ======
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
 // ============================================================================
+// القسم الثامن: قائمة الرغبات والسلة (Wishlist & Cart)
+// ============================================================================
+
+// ============================
+// قائمة الرغبات
+// ============================
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String                             // المستخدم
+  productId String                             // المنتج
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])  // كل مستخدم يمكنه إضافة المنتج مرة واحدة فقط
+  @@index([userId])
+  @@index([productId])
+  @@map("wishlists")
+}
+
+// ============================
+// عناصر السلة
+// ============================
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String                             // المستخدم
+  productId String                             // المنتج
+  quantity  Int      @default(1)               // الكمية
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])  // كل مستخدم يمكنه إضافة المنتج مرة واحدة فقط في السلة
+  @@index([userId])
+  @@index([productId])
+  @@map("cart_items")
+}
+
+// ============================================================================
+// القسم التاسع: الكوبونات والخصومات (Coupons)
+// ============================================================================
+
+// ============================
+// نوع الخصم
+// ============================
+enum DiscountType {
+  PERCENTAGE  // نسبة مئوية (مثل 10%)
+  FIXED       // مبلغ ثابت (مثل $10)
+}
+
+// ============================
+// جدول الكوبونات
+// ============================
+model Coupon {
+  id            String       @id @default(cuid())
+  code          String       @unique              // رمز الكوبون (فريد)
+  discountType  DiscountType                      // نوع الخصم
+  discountValue Decimal      @db.Decimal(10, 2)   // قيمة الخصم
+  minPurchase   Decimal?     @db.Decimal(10, 2)   // الحد الأدنى للشراء (اختياري)
+  maxDiscount   Decimal?     @db.Decimal(10, 2)   // الحد الأقصى للخصم (اختياري)
+  maxUses       Int?                              // الحد الأقصى للاستخدام (null = غير محدود)
+  usedCount     Int          @default(0)          // عدد مرات الاستخدام
+  validFrom     DateTime                          // تاريخ البداية
+  validUntil    DateTime?                         // تاريخ الانتهاء (null = لا ينتهي)
+  isActive      Boolean      @default(true)       // هل الكوبون نشط؟
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  usages CouponUsage[]  // سجل استخدام الكوبون
+
+  @@index([code])
+  @@index([validFrom])
+  @@index([validUntil])
+  @@map("coupons")
+}
+
+// ============================
+// سجل استخدام الكوبونات
+// ============================
+model CouponUsage {
+  id        String   @id @default(cuid())
+  couponId  String                              // الكوبون المستخدم
+  userId    String                              // المستخدم
+  orderId   String?                             // الطلب (اختياري)
+  usedAt    DateTime @default(now())            // تاريخ الاستخدام
+
+  coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([couponId])
+  @@index([userId])
+  @@index([orderId])
+  @@map("coupon_usages")
+}
+
+// ============================================================================
+// القسم العاشر: تتبع التحميلات (Download Tracking)
+// ============================================================================
+
+// ============================
+// جدول التحميلات
+// ============================
+model Download {
+  id            String   @id @default(cuid())
+  userId        String                              // المستخدم
+  productId     String                              // المنتج
+  productFileId String                              // الملف المحمل
+  ipAddress     String?                             // عنوان IP (للأمان)
+  userAgent     String?  @db.Text                   // معلومات المتصفح
+  downloadedAt  DateTime @default(now())            // تاريخ التحميل
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product     Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productFile ProductFile @relation(fields: [productFileId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([productId])
+  @@index([productFileId])
+  @@index([downloadedAt])
+  @@map("downloads")
+}
+
+// ============================================================================
+// القسم الحادي عشر: نظام الإشعارات (Notifications)
+// ============================================================================
+
+// ============================
+// أنواع الإشعارات
+// ============================
+enum NotificationType {
+  SYSTEM         // إشعار من النظام
+  ORDER          // إشعار طلب جديد
+  ORDER_STATUS   // تحديث حالة الطلب
+  PAYMENT        // إشعار الدفع
+  REVIEW         // تقييم جديد
+  PRODUCT        // تحديث المنتج
+  COUPON         // كوبون جديد أو انتهاء صلاحية
+  SECURITY       // إشعار أمني (تسجيل دخول جديد)
+  PROMOTION      // عروض وتخفيضات
+  OTHER          // أخرى
+}
+
+// ============================
+// جدول الإشعارات
+// ============================
+model Notification {
+  id            String           @id @default(cuid())
+  userId        String                                   // المستخدم المستلم
+  type          NotificationType @default(SYSTEM)        // نوع الإشعار
+  title         String                                   // عنوان الإشعار
+  message       String           @db.Text                // محتوى الإشعار
+  link          String?                                  // رابط للتفاصيل (اختياري)
+  isRead        Boolean          @default(false)         // هل تم قراءة الإشعار؟
+  readAt        DateTime?                                // تاريخ القراءة
+  
+  // ====== معرّفات مرجعية (اختيارية) ======
+  orderId       String?                                  // معرّف الطلب المرتبط
+  productId     String?                                  // معرّف المنتج المرتبط
+  reviewId      String?                                  // معرّف التقييم المرتبط
+  
+  // ====== التواريخ ======
+  createdAt     DateTime         @default(now())         // تاريخ الإنشاء
+  expiresAt     DateTime?                                // تاريخ انتهاء الإشعار (اختياري)
+
+  // ====== العلاقات ======
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // ====== الفهارس ======
+  @@index([userId])
+  @@index([type])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}

@@ -17,7 +17,6 @@ import {
   type OAuthProvider,
 } from "../validations";
 import { z } from "zod";
-import type { UserRole } from "@prisma/client";
 import {
   generatePasswordResetToken,
   getPasswordResetTokenByToken,
@@ -135,7 +134,7 @@ export async function registerAction(
       };
     }
 
-    const { name, email, password, role, storeName } = validationResult.data;
+    const { name, email, password } = validationResult.data;
 
     // Check if user exists
     const existingUser = await getUserByEmail(email);
@@ -155,8 +154,6 @@ export async function registerAction(
       email,
       name,
       password: hashedPassword,
-      role: role || "USER",
-      storeName,
     });
 
     // Send verification email
@@ -230,8 +227,6 @@ export async function verifyEmailAction(
         name: pendingUser.name,
         email: pendingUser.email,
         password: pendingUser.password, // Already hashed
-        role: pendingUser.role as UserRole,
-        storeName: pendingUser.storeName || undefined,
       },
       true,
     ); // Pass true to skip password hashing

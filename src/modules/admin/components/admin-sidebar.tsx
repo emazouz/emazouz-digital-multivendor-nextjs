@@ -10,72 +10,106 @@ import {
   LayoutDashboard,
   User,
   Users,
-  UserCheck,
   Settings,
   FileText,
   DollarSign,
   MessageSquare,
   Download,
-  RefreshCcw,
   LogOut,
+  Package,
+  ShoppingCart,
+  Bell,
+  Ticket,
 } from "lucide-react";
 
 interface NavItem {
   label: string;
   href: string;
   icon: React.ReactNode;
+  section?: string;
 }
 
 const navItems: NavItem[] = [
+  // ====== الرئيسية ======
   {
     label: "Dashboard",
     href: "/admin",
     icon: <LayoutDashboard className="w-5 h-5" />,
+    section: "main",
+  },
+
+  // ====== إدارة المتجر ======
+  {
+    label: "Products",
+    href: "/admin/products",
+    icon: <Package className="w-5 h-5" />,
+    section: "store",
   },
   {
-    label: "Profile",
-    href: "/admin/profile",
-    icon: <User className="w-5 h-5" />,
+    label: "Orders",
+    href: "/admin/orders",
+    icon: <ShoppingCart className="w-5 h-5" />,
+    section: "store",
   },
   {
-    label: "Followers",
-    href: "/admin/followers",
+    label: "Coupons",
+    href: "/admin/coupons",
+    icon: <Ticket className="w-5 h-5" />,
+    section: "store",
+  },
+
+  // ====== المستخدمين والتفاعل ======
+  {
+    label: "Users",
+    href: "/admin/users",
     icon: <Users className="w-5 h-5" />,
-  },
-  {
-    label: "Followings",
-    href: "/admin/followings",
-    icon: <UserCheck className="w-5 h-5" />,
-  },
-  {
-    label: "Settings",
-    href: "/admin/settings",
-    icon: <Settings className="w-5 h-5" />,
-  },
-  {
-    label: "Statements",
-    href: "/admin/statements",
-    icon: <FileText className="w-5 h-5" />,
-  },
-  {
-    label: "Earnings",
-    href: "/admin/earnings",
-    icon: <DollarSign className="w-5 h-5" />,
+    section: "users",
   },
   {
     label: "Reviews",
     href: "/admin/reviews",
     icon: <MessageSquare className="w-5 h-5" />,
+    section: "users",
   },
+
+  // ====== التقارير والمالية ======
   {
     label: "Downloads",
     href: "/admin/downloads",
     icon: <Download className="w-5 h-5" />,
+    section: "reports",
   },
   {
-    label: "Refunds",
-    href: "/admin/refunds",
-    icon: <RefreshCcw className="w-5 h-5" />,
+    label: "Earnings",
+    href: "/admin/earnings",
+    icon: <DollarSign className="w-5 h-5" />,
+    section: "reports",
+  },
+  {
+    label: "Statements",
+    href: "/admin/statements",
+    icon: <FileText className="w-5 h-5" />,
+    section: "reports",
+  },
+
+  // ====== الحساب والإعدادات ======
+  {
+    label: "Notifications",
+    href: "/admin/notifications",
+    icon: <Bell className="w-5 h-5" />,
+    section: "account",
+  },
+  {
+    label: "Profile",
+    href: "/admin/profile",
+    icon: <User className="w-5 h-5" />,
+    section: "account",
+  },
+  {
+    label: "Settings",
+    href: "/admin/settings",
+    icon: <Settings className="w-5 h-5" />,
+    section: "account",
   },
 ];
 

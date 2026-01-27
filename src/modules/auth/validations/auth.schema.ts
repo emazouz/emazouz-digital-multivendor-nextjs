@@ -34,27 +34,11 @@ export const registerSchema = z
       .min(1, "Password is required")
       .min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
-    role: z.enum(["USER", "VENDOR", "ADMIN"], {
-      message: "Please select a valid role",
-    }),
-    storeName: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
-  })
-  .refine(
-    (data) => {
-      if (data.role === "VENDOR") {
-        return !!data.storeName && data.storeName.trim().length > 0;
-      }
-      return true;
-    },
-    {
-      message: "Store name is required for vendors",
-      path: ["storeName"],
-    },
-  );
+  });
 
 export type RegisterFormData = z.infer<typeof registerSchema>;
 

@@ -9,35 +9,21 @@ import { Input } from "@/shared/components/ui/input";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import Logo from "@/shared/components/logo";
 import { ModeToggle } from "@/modules/home/components/header/mode-toggle";
-import {
-  Eye,
-  EyeClosed,
-  Mail,
-  AlertCircle,
-  User,
-  Store,
-  ArrowLeft,
-  ShoppingBag,
-  Sparkles,
-} from "lucide-react";
+import { Eye, EyeClosed, Mail, AlertCircle, User } from "lucide-react";
 import { Label } from "@/shared/components/ui/label";
 import { Loader } from "@/shared/components/ui/loader";
 import LeftSideAuth from "./left-side";
 import { registerAction, oauthLoginAction } from "../actions/auth.actions";
-import { UserRole } from "@prisma/client";
 
 interface FormData {
   name: string;
   email: string;
   password: string;
   confirmPassword: string;
-  storeName: string;
   agreeTerms: boolean;
 }
 
 const RegisterForm = () => {
-  const [step, setStep] = useState<"select-role" | "form">("select-role");
-  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -49,20 +35,8 @@ const RegisterForm = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    storeName: "",
     agreeTerms: false,
   });
-
-  const handleRoleSelect = (role: UserRole) => {
-    setSelectedRole(role);
-    setStep("form");
-  };
-
-  const handleBack = () => {
-    setStep("select-role");
-    setSelectedRole(null);
-    setError("");
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -88,20 +62,12 @@ const RegisterForm = () => {
       return;
     }
 
-    if (!selectedRole) {
-      setError("Please select a role.");
-      setIsLoading(false);
-      return;
-    }
-
     try {
       const result = await registerAction({
         name: formData.name,
         email: formData.email,
         password: formData.password,
         confirmPassword: formData.confirmPassword,
-        role: selectedRole || "USER",
-        storeName: formData.storeName || undefined,
       });
 
       if (result.success) {
@@ -138,6 +104,7 @@ const RegisterForm = () => {
       setIsLoading(false);
     }
   };
+
   // Animation variants
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -157,15 +124,9 @@ const RegisterForm = () => {
   };
 
   const slideVariants: Variants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 300 : -300,
-      opacity: 0,
-    }),
+    enter: { x: 300, opacity: 0 },
     center: { x: 0, opacity: 1 },
-    exit: (direction: number) => ({
-      x: direction < 0 ? 300 : -300,
-      opacity: 0,
-    }),
+    exit: { x: -300, opacity: 0 },
   };
 
   return (
@@ -186,123 +147,11 @@ const RegisterForm = () => {
         </motion.div>
 
         <div className="w-full max-w-md mx-auto">
-          <AnimatePresence mode="wait" custom={step === "form" ? 1 : -1}>
-            {step === "select-role" ? (
-              <motion.div
-                key="select-role"
-                custom={-1}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-              >
-                <motion.div
-                  initial="hidden"
-                  animate="visible"
-                  variants={containerVariants}
-                >
-                  {/* Logo */}
-                  <motion.div variants={itemVariants}>
-                    <Logo />
-                  </motion.div>
-
-                  {/* Title */}
-                  <motion.h4
-                    variants={itemVariants}
-                    className="text-3xl sm:text-4xl font-bold text-foreground mb-3"
-                  >
-                    Create Account
-                  </motion.h4>
-
-                  <motion.p
-                    variants={itemVariants}
-                    className="text-muted-foreground mb-8"
-                  >
-                    How would you like to use Emazouz Digital?
-                  </motion.p>
-
-                  {/* Role Selection Cards */}
-                  <motion.div
-                    variants={itemVariants}
-                    className="grid gap-4 mb-8"
-                  >
-                    {/* Customer Card */}
-                    <button
-                      type="button"
-                      onClick={() => handleRoleSelect("USER")}
-                      className="group relative p-6 rounded-2xl border-2 border-border/50 bg-card/50 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 text-left"
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center group-hover:from-primary/30 group-hover:to-secondary/30 transition-colors">
-                          <ShoppingBag className="w-7 h-7 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <h5 className="font-bold text-lg text-foreground mb-1 group-hover:text-primary transition-colors">
-                            I&apos;m a Customer
-                          </h5>
-                          <p className="text-sm text-muted-foreground">
-                            Browse and purchase digital products, templates, and
-                            assets.
-                          </p>
-                        </div>
-                        <div className="w-6 h-6 rounded-full border-2 border-border group-hover:border-primary group-hover:bg-primary/10 transition-colors flex items-center justify-center">
-                          <div className="w-2 h-2 rounded-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                      </div>
-                    </button>
-
-                    {/* Seller Card */}
-                    <button
-                      type="button"
-                      onClick={() => handleRoleSelect("VENDOR")}
-                      className="group w-full relative pt-8 pb-6 px-6 rounded-2xl border-2 border-border/50 bg-card/50 hover:border-secondary/50 hover:bg-secondary/5 transition-all duration-300 text-left"
-                    >
-                      <div className="absolute -top-3 right-6">
-                        <span className="inline-flex items-center gap-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg">
-                          <Sparkles className="w-3 h-3" />
-                          Earn Money
-                        </span>
-                      </div>
-                      <div className="flex items-start gap-4">
-                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-secondary/20 to-violet-500/20 flex items-center justify-center group-hover:from-secondary/30 group-hover:to-violet-500/30 transition-colors">
-                          <Store className="w-7 h-7 text-secondary" />
-                        </div>
-                        <div className="flex-1">
-                          <h5 className="font-bold text-lg text-foreground mb-1 group-hover:text-secondary transition-colors">
-                            I&apos;m a Seller
-                          </h5>
-                          <p className="text-sm text-muted-foreground">
-                            Create your store and start selling your digital
-                            creations.
-                          </p>
-                        </div>
-                        <div className="w-6 h-6 rounded-full border-2 border-border group-hover:border-secondary group-hover:bg-secondary/10 transition-colors flex items-center justify-center">
-                          <div className="w-2 h-2 rounded-full bg-secondary opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                      </div>
-                    </button>
-                  </motion.div>
-
-                  {/* Sign In Link */}
-                  <motion.div variants={itemVariants} className="text-center">
-                    <p className="text-sm text-muted-foreground">
-                      Already have an account?{" "}
-                      <Link
-                        href="/auth/login"
-                        className="text-primary hover:text-primary/80 underline underline-offset-2 font-medium transition-colors"
-                      >
-                        Sign in
-                      </Link>
-                    </p>
-                  </motion.div>
-                </motion.div>
-              </motion.div>
-            ) : successMessage ? (
+          <AnimatePresence mode="wait">
+            {successMessage ? (
               // Email Verification Sent - Success State
               <motion.div
                 key="success"
-                custom={1}
                 variants={slideVariants}
                 initial="enter"
                 animate="center"
@@ -390,11 +239,8 @@ const RegisterForm = () => {
                           email: "",
                           password: "",
                           confirmPassword: "",
-                          storeName: "",
                           agreeTerms: false,
                         });
-                        setStep("select-role");
-                        setSelectedRole(null);
                       }}
                       className="w-full rounded-full h-12 hover:scale-[1.02] active:scale-[0.98] transition-transform"
                     >
@@ -425,9 +271,9 @@ const RegisterForm = () => {
                 </motion.div>
               </motion.div>
             ) : (
+              // Registration Form
               <motion.div
                 key="form"
-                custom={1}
                 variants={slideVariants}
                 initial="enter"
                 animate="center"
@@ -439,17 +285,6 @@ const RegisterForm = () => {
                   animate="visible"
                   variants={containerVariants}
                 >
-                  {/* Back Button */}
-                  <motion.button
-                    variants={itemVariants}
-                    type="button"
-                    onClick={handleBack}
-                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6 group"
-                  >
-                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                    <span className="text-sm font-medium">Back</span>
-                  </motion.button>
-
                   {/* Logo */}
                   <motion.div variants={itemVariants}>
                     <Logo />
@@ -460,18 +295,14 @@ const RegisterForm = () => {
                     variants={itemVariants}
                     className="text-3xl sm:text-4xl font-bold text-foreground mb-2"
                   >
-                    {selectedRole === "VENDOR"
-                      ? "Create Seller Account"
-                      : "Create Account"}
+                    Create Account
                   </motion.h4>
 
                   <motion.p
                     variants={itemVariants}
                     className="text-muted-foreground mb-6"
                   >
-                    {selectedRole === "VENDOR"
-                      ? "Set up your store and start selling"
-                      : "Fill in your details to get started"}
+                    Fill in your details to get started
                   </motion.p>
 
                   {/* Error Message */}
@@ -512,32 +343,6 @@ const RegisterForm = () => {
                         <User className="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
                       </div>
                     </motion.div>
-
-                    {/* Store Name Field (Vendors Only) */}
-                    {selectedRole === "VENDOR" && (
-                      <motion.div variants={itemVariants} className="space-y-2">
-                        <Label
-                          htmlFor="storeName"
-                          className="block text-base font-semibold text-foreground"
-                        >
-                          Store Name
-                        </Label>
-                        <div className="relative group">
-                          <Input
-                            type="text"
-                            id="storeName"
-                            name="storeName"
-                            value={formData.storeName}
-                            onChange={handleInputChange}
-                            placeholder="My Awesome Store"
-                            className="h-12 sm:h-14 pl-4 pr-12 bg-muted/50 border-input rounded-xl text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/20 transition-all duration-300 focus:shadow-lg focus:shadow-primary/10"
-                            required
-                            disabled={isLoading}
-                          />
-                          <Store className="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                        </div>
-                      </motion.div>
-                    )}
 
                     {/* Email Field */}
                     <motion.div variants={itemVariants} className="space-y-2">

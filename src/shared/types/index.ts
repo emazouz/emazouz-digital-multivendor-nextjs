@@ -3,7 +3,6 @@ import { ProductStatus, ProductCategory } from "@prisma/client";
 
 export interface ProductDTO {
   id: string;
-  vendorId: string;
   title: string;
   slug: string;
   originalPrice: number; // Converted from Decimal

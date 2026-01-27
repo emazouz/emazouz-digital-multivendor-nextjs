@@ -82,8 +82,6 @@ export const getEmailVerificationByEmail = async (email: string) => {
   }
 };
 
-
-
 /**
  * Generate email verification token and store pending user data
  */
@@ -91,8 +89,6 @@ export const generateEmailVerificationToken = async (data: {
   email: string;
   name: string;
   password: string;
-  role: string;
-  storeName?: string;
 }) => {
   const token = uuidv4();
   // Token expires in 24 hours
@@ -112,8 +108,7 @@ export const generateEmailVerificationToken = async (data: {
       email: data.email.toLowerCase(),
       name: data.name,
       password: data.password,
-      role: data.role as "USER" | "VENDOR" | "ADMIN",
-      storeName: data.storeName,
+      role: "USER",
       token,
       expires,
     },
