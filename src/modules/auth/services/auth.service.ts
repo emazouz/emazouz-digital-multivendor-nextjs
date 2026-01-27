@@ -13,7 +13,7 @@ import type { UserRole } from "@prisma/client";
  */
 export async function getUserByEmail(email: string) {
   return prisma.user.findUnique({
-    where: { email: email.toLowerCase() },
+    where: { email: email },
     include: {
       vendor: true,
     },
@@ -69,8 +69,9 @@ interface CreateUserData {
 /**
  * Create a new user account
  * If role is VENDOR, also creates a Vendor record
+ * @param skipHashing - If true, password is already hashed (for email verification flow)
  */
-export async function createUser(data: CreateUserData) {
+export async function createUser(data: CreateUserData, skipHashing = false) {
   const { name, email, password, role, storeName } = data;
 
   // Check if user already exists
@@ -79,14 +80,14 @@ export async function createUser(data: CreateUserData) {
     throw new Error("User with this email already exists");
   }
 
-  // Hash the password
-  const hashedPassword = await hashPassword(password);
+  // Hash the password (unless already hashed)
+  const hashedPassword = skipHashing ? password : await hashPassword(password);
 
   // Create user with optional vendor
   const user = await prisma.user.create({
     data: {
       name,
-      email: email.toLowerCase(),
+      email: email,
       password: hashedPassword,
       role,
       ...(role === "VENDOR" &&

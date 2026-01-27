@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, Variants } from "motion/react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -27,7 +26,6 @@ import LeftSideAuth from "./left-side";
 import { registerAction, oauthLoginAction } from "../actions/auth.actions";
 import { UserRole } from "@prisma/client";
 
-
 interface FormData {
   name: string;
   email: string;
@@ -38,13 +36,13 @@ interface FormData {
 }
 
 const RegisterForm = () => {
-  const router = useRouter();
   const [step, setStep] = useState<"select-role" | "form">("select-role");
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -75,6 +73,7 @@ const RegisterForm = () => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    setSuccessMessage("");
 
     // Validation
     if (formData.password !== formData.confirmPassword) {
@@ -95,7 +94,6 @@ const RegisterForm = () => {
       return;
     }
 
-
     try {
       const result = await registerAction({
         name: formData.name,
@@ -107,8 +105,10 @@ const RegisterForm = () => {
       });
 
       if (result.success) {
-        router.push("/");
-        router.refresh();
+        setSuccessMessage(
+          result.message ||
+            "Registration successful! Please check your email to verify your account.",
+        );
       } else {
         setError(result.error || "Registration failed. Please try again.");
       }
@@ -289,11 +289,137 @@ const RegisterForm = () => {
                     <p className="text-sm text-muted-foreground">
                       Already have an account?{" "}
                       <Link
-                        href="/login"
+                        href="/auth/login"
                         className="text-primary hover:text-primary/80 underline underline-offset-2 font-medium transition-colors"
                       >
                         Sign in
                       </Link>
+                    </p>
+                  </motion.div>
+                </motion.div>
+              </motion.div>
+            ) : successMessage ? (
+              // Email Verification Sent - Success State
+              <motion.div
+                key="success"
+                custom={1}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <motion.div
+                  initial="hidden"
+                  animate="visible"
+                  variants={containerVariants}
+                  className="text-center"
+                >
+                  {/* Logo */}
+                  <motion.div variants={itemVariants}>
+                    <Logo />
+                  </motion.div>
+
+                  {/* Success Icon */}
+                  <motion.div
+                    variants={itemVariants}
+                    className="mt-12 mb-8 flex justify-center"
+                  >
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 200,
+                        damping: 15,
+                        delay: 0.3,
+                      }}
+                      className="w-24 h-24 rounded-full bg-green-500/10 flex items-center justify-center"
+                    >
+                      <Mail className="w-12 h-12 text-green-500" />
+                    </motion.div>
+                  </motion.div>
+
+                  {/* Title */}
+                  <motion.h4
+                    variants={itemVariants}
+                    className="text-2xl sm:text-3xl font-bold text-foreground mb-4"
+                  >
+                    Check Your Email
+                  </motion.h4>
+
+                  {/* Description */}
+                  <motion.p
+                    variants={itemVariants}
+                    className="text-muted-foreground mb-2"
+                  >
+                    We&apos;ve sent a verification link to
+                  </motion.p>
+
+                  <motion.p
+                    variants={itemVariants}
+                    className="text-primary font-semibold mb-8"
+                  >
+                    {formData.email}
+                  </motion.p>
+
+                  <motion.p
+                    variants={itemVariants}
+                    className="text-sm text-muted-foreground mb-8"
+                  >
+                    Click the link in your email to verify your account and
+                    complete registration.
+                    <br />
+                    Don&apos;t forget to check your spam folder!
+                  </motion.p>
+
+                  {/* Actions */}
+                  <motion.div variants={itemVariants} className="space-y-3">
+                    <Link href="/auth/login">
+                      <Button className="w-full rounded-full h-12 hover:scale-[1.02] active:scale-[0.98] transition-transform">
+                        Go to Login
+                      </Button>
+                    </Link>
+
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSuccessMessage("");
+                        setFormData({
+                          name: "",
+                          email: "",
+                          password: "",
+                          confirmPassword: "",
+                          storeName: "",
+                          agreeTerms: false,
+                        });
+                        setStep("select-role");
+                        setSelectedRole(null);
+                      }}
+                      className="w-full rounded-full h-12 hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                    >
+                      Register Another Account
+                    </Button>
+                  </motion.div>
+
+                  {/* Help Link */}
+                  <motion.div
+                    variants={itemVariants}
+                    className="text-center pt-8"
+                  >
+                    <p className="text-sm text-muted-foreground">
+                      Didn&apos;t receive the email?{" "}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleSubmit({
+                            preventDefault: () => {},
+                          } as React.FormEvent<HTMLFormElement>)
+                        }
+                        className="text-primary hover:text-primary/80 underline underline-offset-2 font-medium transition-colors"
+                      >
+                        Resend verification email
+                      </button>
                     </p>
                   </motion.div>
                 </motion.div>
@@ -623,7 +749,7 @@ const RegisterForm = () => {
                       <p className="text-sm text-muted-foreground">
                         Already have an account?{" "}
                         <Link
-                          href="/login"
+                          href="/auth/login"
                           className="text-primary hover:text-primary/80 underline underline-offset-2 font-medium transition-colors"
                           tabIndex={isLoading ? -1 : 0}
                         >

@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import {
+  BellIcon,
   ChevronDownIcon,
   Heart,
   LogOutIcon,
@@ -46,8 +46,6 @@ function Header() {
   const { data: session } = useSession();
   const user = session?.user;
 
-  console.log("user: ", user);
-
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-muted/95 backdrop-blur supports-[backdrop-filter]:bg-muted/60">
       <div className="wrapper flex h-17.5 items-center justify-between">
@@ -90,6 +88,22 @@ function Header() {
         {/* Right Section */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
+            {/* Notification */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative w-12 h-12 rounded-full"
+              aria-label="Notification"
+            >
+              <BellIcon className="size-5" />
+              <Badge
+                variant="default"
+                className="absolute top-1.5 right-1.5 h-4 w-4 p-0 flex items-center justify-center text-xs"
+              >
+                1
+              </Badge>
+            </Button>
+
             {/* Shop Cart */}
             <Button
               variant="ghost"
@@ -102,13 +116,13 @@ function Header() {
                 variant="default"
                 className="absolute top-1.5 right-1.5 h-4 w-4 p-0 flex items-center justify-center text-xs"
               >
-                0
+                9
               </Badge>
             </Button>
 
             {/* Following/Wishlist */}
             <Button
-              variant="ghost"
+              variant="ghost" 
               size="icon"
               className="relative hidden sm:flex w-12 h-12 rounded-full"
               aria-label="Wishlist"
@@ -165,7 +179,7 @@ function Header() {
                 <DropdownMenuItem>
                   {user.role === "ADMIN" ? "Dashboard" : "Profile"}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => signOut()}>
+                <DropdownMenuItem>
                   <Button
                     variant={"destructive"}
                     size="sm"
@@ -184,7 +198,7 @@ function Header() {
               className="hidden sm:flex items-center gap-2 rounded-full"
               asChild
             >
-              <Link href="/login">
+              <Link href="/auth/login">
                 <UserIcon className="w-4 h-4" />
                 <span>Create Account</span>
               </Link>

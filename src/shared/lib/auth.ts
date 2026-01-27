@@ -71,8 +71,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   // Custom Pages
   // ========================================
   pages: {
-    signIn: "/login",
-    error: "/login",
+    signIn: "/auth/login",
+    error: "/auth/login",
   },
 
   // ========================================

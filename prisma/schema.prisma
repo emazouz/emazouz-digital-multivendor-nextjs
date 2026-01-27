@@ -105,6 +105,26 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
+// ============================
+// جدول المستخدمين المعلقين (في انتظار التحقق من البريد)
+// ============================
+// يُستخدم لتخزين بيانات التسجيل حتى يتم التحقق من البريد الإلكتروني
+model PendingUser {
+  id        String   @id @default(cuid())
+  email     String   @unique              // البريد الإلكتروني (فريد)
+  name      String                        // اسم المستخدم
+  password  String                        // كلمة المرور المشفرة
+  role      UserRole @default(USER)       // دور المستخدم
+  storeName String?                       // اسم المتجر (للبائعين)
+  token     String   @unique              // رمز التحقق
+  expires   DateTime                      // تاريخ انتهاء صلاحية الرمز
+  createdAt DateTime @default(now())      // تاريخ إنشاء الطلب
+
+  @@index([email])
+  @@index([token])
+  @@map("pending_users")
+}
+
 // ============================================================================
 // القسم الثاني: نظام البائعين (Vendors)
 // ============================================================================

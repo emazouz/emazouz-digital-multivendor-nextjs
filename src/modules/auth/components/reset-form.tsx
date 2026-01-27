@@ -1,25 +1,64 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Variants, motion } from "motion/react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import Logo from "@/shared/components/logo";
 import { ModeToggle } from "@/modules/home/components/header/mode-toggle";
-import { Mail, AlertCircle } from "lucide-react";
+import { Mail, AlertCircle, RefreshCw } from "lucide-react";
 import { Label } from "@/shared/components/ui/label";
 import { Loader } from "@/shared/components/ui/loader";
 import LeftSideAuth from "./left-side";
 import { reset } from "../actions/auth.actions";
 
+// Cooldown intervals in seconds: 1 min, 3 min, 5 min
+const COOLDOWN_INTERVALS = [60, 180, 300];
+
 const ResetForm = () => {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [resendCount, setResendCount] = useState(0);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const [canResend, setCanResend] = useState(false);
+
+  // Format seconds to MM:SS
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  // Get current cooldown interval based on resend count
+  const getCurrentCooldown = useCallback(() => {
+    const index = Math.min(resendCount, COOLDOWN_INTERVALS.length - 1);
+    return COOLDOWN_INTERVALS[index];
+  }, [resendCount]);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (cooldownSeconds <= 0) {
+      if (success) setCanResend(true);
+      return;
+    }
+
+    setCanResend(false);
+    const timer = setInterval(() => {
+      setCooldownSeconds((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [cooldownSeconds, success]);
+
+  // Start cooldown after successful email send
+  const startCooldown = useCallback(() => {
+    const cooldown = getCurrentCooldown();
+    setCooldownSeconds(cooldown);
+    setCanResend(false);
+  }, [getCurrentCooldown]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,6 +71,28 @@ const ResetForm = () => {
 
       if (result.success) {
         setSuccess(result.success);
+        startCooldown();
+      } else {
+        setError(result.error || "An error occurred.");
+      }
+    } catch {
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const result = await reset({ email });
+
+      if (result.success) {
+        setSuccess(result.success);
+        setResendCount((prev) => prev + 1);
+        startCooldown();
       } else {
         setError(result.error || "An error occurred.");
       }
@@ -66,7 +127,7 @@ const ResetForm = () => {
       <LeftSideAuth />
 
       {/* Right Side - Decorative Images */}
-      <div className="relative flex items-center justify-center p-6 sm:p-8 md:p-12 bg-background order-2 lg:order-1">
+      <div className="relative flex-center p-6 sm:p-8 md:p-12 bg-background order-2 lg:order-1">
         {/* Mode Toggle */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -108,17 +169,55 @@ const ResetForm = () => {
             </motion.div>
           )}
 
-          {/* Success Message */}
+          {/* Success Message with Resend Option */}
           {success && (
             <motion.div
               initial={{ opacity: 0, y: -10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 mb-6 flex items-start gap-3"
+              className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 mb-6"
             >
-              <div className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0">
-                ✓
+              <div className="flex items-start gap-3">
+                <div className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0">
+                  ✓
+                </div>
+                <p className="text-sm text-emerald-500">{success}</p>
               </div>
-              <p className="text-sm text-emerald-500">{success}</p>
+
+              {/* Resend Section */}
+              <div className="mt-4 pt-3 border-t border-emerald-500/20">
+                {cooldownSeconds > 0 ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <RefreshCw className="w-4 h-4" />
+                    <span>
+                      Resend available in{" "}
+                      <span className="font-semibold text-foreground">
+                        {formatTime(cooldownSeconds)}
+                      </span>
+                    </span>
+                  </div>
+                ) : canResend ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleResend}
+                    disabled={isLoading}
+                    className="text-primary hover:text-primary/80 hover:bg-primary/10 -ml-2"
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center gap-2">
+                        <Loader size="sm" />
+                        Sending...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <RefreshCw className="w-4 h-4" />
+                        Resend reset email
+                      </span>
+                    )}
+                  </Button>
+                ) : null}
+              </div>
             </motion.div>
           )}
 
@@ -169,7 +268,7 @@ const ResetForm = () => {
             {/* Back to Login Link */}
             <motion.div variants={itemVariants} className="text-center pt-4">
               <Link
-                href="/login"
+                href="/auth/login"
                 className="text-primary hover:text-primary/80 underline underline-offset-2 font-medium transition-colors"
                 tabIndex={isLoading ? -1 : 0}
               >

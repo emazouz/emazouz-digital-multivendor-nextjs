@@ -42,7 +42,7 @@ const NewPasswordForm = () => {
       if (result.success) {
         setSuccess(result.success);
         setTimeout(() => {
-          router.push("/login");
+          router.push("/auth/login");
         }, 2000);
       } else {
         setError(result.error || "An error occurred.");
@@ -194,7 +194,7 @@ const NewPasswordForm = () => {
             {/* Back to Login Link */}
             <motion.div variants={itemVariants} className="text-center pt-4">
               <Link
-                href="/login"
+                href="/auth/login"
                 className="text-primary hover:text-primary/80 underline underline-offset-2 font-medium transition-colors"
                 tabIndex={isLoading ? -1 : 0}
               >

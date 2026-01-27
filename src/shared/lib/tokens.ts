@@ -47,3 +47,91 @@ export const generatePasswordResetToken = async (email: string) => {
 
   return passwordResetToken;
 };
+
+// ========================================
+// Email Verification Token Functions
+// ========================================
+
+/**
+ * Get email verification pending user by token
+ */
+export const getEmailVerificationByToken = async (token: string) => {
+  try {
+    const pendingUser = await db.pendingUser.findUnique({
+      where: { token },
+    });
+
+    return pendingUser;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Get email verification pending user by email
+ */
+export const getEmailVerificationByEmail = async (email: string) => {
+  try {
+    const pendingUser = await db.pendingUser.findUnique({
+      where: { email: email.toLowerCase() },
+    });
+
+    return pendingUser;
+  } catch {
+    return null;
+  }
+};
+
+
+
+/**
+ * Generate email verification token and store pending user data
+ */
+export const generateEmailVerificationToken = async (data: {
+  email: string;
+  name: string;
+  password: string;
+  role: string;
+  storeName?: string;
+}) => {
+  const token = uuidv4();
+  // Token expires in 24 hours
+  const expires = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+
+  // Delete existing pending user if exists
+  const existingPending = await getEmailVerificationByEmail(data.email);
+  if (existingPending) {
+    await db.pendingUser.delete({
+      where: { email: data.email.toLowerCase() },
+    });
+  }
+
+  // Create new pending user
+  const pendingUser = await db.pendingUser.create({
+    data: {
+      email: data.email.toLowerCase(),
+      name: data.name,
+      password: data.password,
+      role: data.role as "USER" | "VENDOR" | "ADMIN",
+      storeName: data.storeName,
+      token,
+      expires,
+    },
+  });
+
+  return pendingUser;
+};
+
+/**
+ * Delete pending user by token (after verification)
+ */
+export const deletePendingUserByToken = async (token: string) => {
+  try {
+    await db.pendingUser.delete({
+      where: { token },
+    });
+    return true;
+  } catch {
+    return false;
+  }
+};

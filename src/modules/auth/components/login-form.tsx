@@ -219,7 +219,7 @@ const LoginForm = () => {
                 </Label>
               </div>
               <Link
-                href="/forgot-password"
+                href="/auth/reset-password"
                 className="text-sm text-primary hover:text-primary/80 underline underline-offset-2 font-medium transition-colors"
                 tabIndex={isLoading ? -1 : 0}
               >
@@ -284,7 +284,7 @@ const LoginForm = () => {
               <p className="text-sm text-muted-foreground">
                 New to the market?{" "}
                 <Link
-                  href="/register"
+                  href="/auth/register"
                   className="text-primary hover:text-primary/80 underline underline-offset-2 font-medium transition-colors"
                   tabIndex={isLoading ? -1 : 0}
                 >

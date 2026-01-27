@@ -1,7 +1,11 @@
 "use server";
 
 import { signIn } from "@/shared/lib/auth";
-import { createUser, getUserByEmail } from "../services/auth.service";
+import {
+  createUser,
+  getUserByEmail,
+  hashPassword,
+} from "../services/auth.service";
 import {
   loginSchema,
   registerSchema,
@@ -17,8 +21,14 @@ import type { UserRole } from "@prisma/client";
 import {
   generatePasswordResetToken,
   getPasswordResetTokenByToken,
+  generateEmailVerificationToken,
+  getEmailVerificationByToken,
+  deletePendingUserByToken,
 } from "@/shared/lib/tokens";
-import { sendPasswordResetEmail } from "@/shared/lib/mail";
+import {
+  sendPasswordResetEmail,
+  sendVerificationEmail,
+} from "@/shared/lib/mail";
 import { db } from "@/shared/lib/prisma";
 import bcrypt from "bcryptjs";
 
@@ -29,6 +39,7 @@ import bcrypt from "bcryptjs";
 interface ActionResult {
   success: boolean;
   error?: string;
+  message?: string;
   fieldErrors?: Record<string, string[]>;
 }
 
@@ -136,23 +147,26 @@ export async function registerAction(
       };
     }
 
-    // Create the user
-    await createUser({
-      name,
+    // Hash password before storing
+    const hashedPassword = await hashPassword(password);
+
+    // Generate verification token and store pending user
+    const pendingUser = await generateEmailVerificationToken({
       email,
-      password,
-      role: role as UserRole,
+      name,
+      password: hashedPassword,
+      role: role || "USER",
       storeName,
     });
 
-    // Auto-login after registration
-    await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    // Send verification email
+    await sendVerificationEmail(email, pendingUser.token);
 
-    return { success: true };
+    return {
+      success: true,
+      message:
+        "Verification email sent! Please check your inbox to verify your email address.",
+    };
   } catch (error) {
     console.error("Registration error:", error);
 
@@ -164,6 +178,85 @@ export async function registerAction(
     }
 
     return { success: false, error: "Registration failed. Please try again." };
+  }
+}
+
+// ========================================
+// Email Verification Action
+// ========================================
+
+/**
+ * Verify email and create user account
+ */
+export async function verifyEmailAction(
+  token: string | null,
+): Promise<ActionResult> {
+  try {
+    if (!token) {
+      return { success: false, error: "Missing verification token" };
+    }
+
+    // Get pending user by token
+    const pendingUser = await getEmailVerificationByToken(token);
+
+    if (!pendingUser) {
+      return { success: false, error: "Invalid or expired verification link" };
+    }
+
+    // Check if token has expired
+    const hasExpired = new Date(pendingUser.expires) < new Date();
+    if (hasExpired) {
+      // Delete expired pending user
+      await deletePendingUserByToken(token);
+      return {
+        success: false,
+        error: "Verification link has expired. Please register again.",
+      };
+    }
+
+    // Check if user already exists (edge case: user registered via OAuth after pending)
+    const existingUser = await getUserByEmail(pendingUser.email);
+    if (existingUser) {
+      await deletePendingUserByToken(token);
+      return {
+        success: false,
+        error: "An account with this email already exists",
+      };
+    }
+
+    // Create the actual user
+    await createUser(
+      {
+        name: pendingUser.name,
+        email: pendingUser.email,
+        password: pendingUser.password, // Already hashed
+        role: pendingUser.role as UserRole,
+        storeName: pendingUser.storeName || undefined,
+      },
+      true,
+    ); // Pass true to skip password hashing
+
+    // Update emailVerified field
+    await db.user.update({
+      where: { email: pendingUser.email.toLowerCase() },
+      data: { emailVerified: new Date() },
+    });
+
+    // Delete pending user
+    await deletePendingUserByToken(token);
+
+    return {
+      success: true,
+      message: "Email verified successfully! You can now log in.",
+    };
+  } catch (error) {
+    console.error("Email verification error:", error);
+
+    if (error instanceof Error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: false, error: "Verification failed. Please try again." };
   }
 }
 

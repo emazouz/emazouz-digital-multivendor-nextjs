@@ -135,7 +135,7 @@
     );
   }
   .wrapper {
-    @apply px-4 md:mx-auto max-w-[1320px] overflow-hidden;
+    @apply px-4 md:mx-auto max-w-350 overflow-hidden;
   }
   .flex-center {
     @apply flex items-center justify-center;

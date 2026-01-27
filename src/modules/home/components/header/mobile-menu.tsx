@@ -45,9 +45,10 @@ function MobileMenu() {
       </SheetTrigger>
 
       <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-      
         <SheetHeader className="text-left mb-6">
-          <SheetTitle className="text-xl font-bold"><Logo /></SheetTitle>
+          <SheetTitle className="text-xl font-bold">
+            <Logo />
+          </SheetTitle>
         </SheetHeader>
 
         <nav className="flex flex-col gap-4 px-4">
@@ -100,10 +101,10 @@ function MobileMenu() {
           {/* User Actions Placeholder */}
           <div className="flex flex-col gap-2 mt-2">
             <Button asChild className="w-full rounded-full">
-              <Link href="/login">Sign In</Link>
+              <Link href="/auth/login">Sign In</Link>
             </Button>
             <Button variant="outline" asChild className="w-full rounded-full">
-              <Link href="/register">Create Account</Link>
+              <Link href="/auth/register">Create Account</Link>
             </Button>
           </div>
         </nav>
