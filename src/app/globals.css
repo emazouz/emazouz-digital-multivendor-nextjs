@@ -137,6 +137,9 @@
   .wrapper {
     @apply px-4 md:mx-auto max-w-350 overflow-hidden;
   }
+  .section {
+    @apply relative flex-1 space-y-4 p-8 pt-6;
+  }
   .flex-center {
     @apply flex items-center justify-center;
   }

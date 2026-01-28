@@ -125,7 +125,7 @@ function AdminSidebar() {
   return (
     <aside
       className={cn(
-        "h-[calc(100vh-4rem)] bg-background border-r border-border flex flex-col transition-all duration-300 ease-in-out",
+        "h-[calc(100vh-4rem)] sticky bottom-0 bg-background border-r border-border flex flex-col transition-all duration-300 ease-in-out",
         isCollapsed ? "w-18" : "w-64",
       )}
     >
