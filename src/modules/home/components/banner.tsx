@@ -1,9 +1,11 @@
 "use client";
 
+import { memo, useCallback, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import { motion } from "motion/react";
+import { useRouter } from "next/navigation";
 
 const techStack = [
   { name: "WordPress", icon: "/assets/images/thumbs/tech-icon1.png" },
@@ -17,7 +19,20 @@ const techStack = [
   { name: "React", icon: "/assets/images/thumbs/tech-icon9.png" },
 ];
 
-const Banner = () => {
+const Banner = memo(function Banner() {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (searchQuery.trim()) {
+        router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      }
+    },
+    [searchQuery, router]
+  );
+
   return (
     <section className="relative overflow-hidden w-full py-20">
       {/* Background Elements */}
@@ -90,17 +105,23 @@ const Banner = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="relative w-full max-w-lg mt-4"
             >
-              <input
-                type="text"
-                placeholder="Search theme, plugins & more..."
-                className="h-14 w-full rounded-full border border-border bg-background/80 pl-8 pr-16 text-lg shadow-lg backdrop-blur-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-              <button
-                type="submit"
-                className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition-transform hover:scale-105 hover:bg-primary/90"
-              >
-                <Search className="h-5 w-5" />
-              </button>
+              <form onSubmit={handleSearch} className="relative w-full">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search theme, plugins & more..."
+                  className="h-14 w-full rounded-full border border-border bg-background/80 pl-8 pr-16 text-lg shadow-lg backdrop-blur-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  aria-label="Search products"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition-transform hover:scale-105 hover:bg-primary/90"
+                  aria-label="Submit search"
+                >
+                  <Search className="h-5 w-5" />
+                </button>
+              </form>
             </motion.div>
 
             {/* Tech Stack List */}
@@ -212,6 +233,6 @@ const Banner = () => {
       </div>
     </section>
   );
-};
+});
 
 export default Banner;

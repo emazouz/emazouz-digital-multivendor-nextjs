@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useCallback, useMemo } from "react";
 import Link from "next/link";
 import {
   BellIcon,
@@ -42,10 +43,88 @@ const PAGES_MENU = [
   { href: "/cart", label: "Shopping Cart" },
 ];
 
-function Header() {
+const UserMenu = memo(function UserMenu() {
   const { data: session } = useSession();
   const user = session?.user;
 
+  const userInitial = useMemo(() => {
+    return user?.name?.charAt(0).toUpperCase() || "U";
+  }, [user?.name]);
+
+  const handleLogout = useCallback(() => {
+    signOut({ callbackUrl: "/" });
+  }, []);
+
+  if (!user) {
+    return (
+      <Button
+        size="sm"
+        className="hidden sm:flex items-center gap-2 rounded-full"
+        asChild
+      >
+        <Link href="/auth/login">
+          <UserIcon className="w-4 h-4" />
+          <span>Create Account</span>
+        </Link>
+      </Button>
+    );
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          <Avatar className="h-8 w-8">
+            {user.image && <AvatarImage src={user.image} alt={user.name || "User"} />}
+            <AvatarFallback>{userInitial}</AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem disabled>
+          <div className="flex items-center gap-2">
+            <Avatar className="h-8 w-8">
+              {user.image && <AvatarImage src={user.image} alt={user.name || "User"} />}
+              <AvatarFallback>{userInitial}</AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="text-sm font-medium">{user.name}</p>
+              <p className="text-xs text-muted-foreground">{user.email}</p>
+            </div>
+          </div>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/settings">Settings</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/orders">Orders</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/purchases">Purchases</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/subscriptions">Subscriptions</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/downloads">Downloads</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href={user.role === "ADMIN" ? "/admin" : "/profile"}>
+            {user.role === "ADMIN" ? "Dashboard" : "Profile"}
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleLogout}>
+          <LogOutIcon className="w-4 h-4 mr-2" />
+          <span>Logout</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+});
+
+const Header = memo(function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-muted/95 backdrop-blur supports-[backdrop-filter]:bg-muted/60">
       <div className="wrapper flex h-17.5 items-center justify-between">
@@ -93,15 +172,18 @@ function Header() {
               variant="ghost"
               size="icon"
               className="relative w-12 h-12 rounded-full"
-              aria-label="Notification"
+              aria-label="Notifications"
+              asChild
             >
-              <BellIcon className="size-5" />
-              <Badge
-                variant="default"
-                className="absolute top-1.5 right-1.5 h-4 w-4 p-0 flex items-center justify-center text-xs"
-              >
-                1
-              </Badge>
+              <Link href="/notifications">
+                <BellIcon className="size-5" />
+                <Badge
+                  variant="default"
+                  className="absolute top-1.5 right-1.5 h-4 w-4 p-0 flex items-center justify-center text-xs"
+                >
+                  0
+                </Badge>
+              </Link>
             </Button>
 
             {/* Shop Cart */}
@@ -109,108 +191,51 @@ function Header() {
               variant="ghost"
               size="icon"
               className="relative w-12 h-12 rounded-full"
-              aria-label="Shopping Cart"
+              aria-label="Shopping cart"
+              asChild
             >
-              <ShoppingCartIcon className="size-5" />
-              <Badge
-                variant="default"
-                className="absolute top-1.5 right-1.5 h-4 w-4 p-0 flex items-center justify-center text-xs"
-              >
-                9
-              </Badge>
+              <Link href="/cart">
+                <ShoppingCartIcon className="size-5" />
+                <Badge
+                  variant="default"
+                  className="absolute top-1.5 right-1.5 h-4 w-4 p-0 flex items-center justify-center text-xs"
+                >
+                  0
+                </Badge>
+              </Link>
             </Button>
 
             {/* Following/Wishlist */}
             <Button
-              variant="ghost" 
+              variant="ghost"
               size="icon"
               className="relative hidden sm:flex w-12 h-12 rounded-full"
               aria-label="Wishlist"
+              asChild
             >
-              <Heart className="size-5" />
-              <Badge
-                variant="default"
-                className="absolute top-1.5 right-1.5 h-4 w-4 p-0 flex items-center justify-center text-xs"
-              >
-                2
-              </Badge>
+              <Link href="/wishlist">
+                <Heart className="size-5" />
+                <Badge
+                  variant="default"
+                  className="absolute top-1.5 right-1.5 h-4 w-4 p-0 flex items-center justify-center text-xs"
+                >
+                  0
+                </Badge>
+              </Link>
             </Button>
 
             <ModeToggle />
           </div>
 
           {/* User Auth */}
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="relative h-8 w-8 rounded-full"
-                >
-                  <Avatar className="h-8 w-8">
-                    {user.image && <AvatarImage src={user.image} />}
-                    <AvatarFallback>
-                      {user.name?.charAt(0).toUpperCase() || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-8 w-8">
-                      {user.image && <AvatarImage src={user.image} />}
-                      <AvatarFallback>
-                        {user.name?.charAt(0).toUpperCase() || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p>{user.name}</p>
-                      <p>{user.email}</p>
-                    </div>
-                  </div>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem>Orders</DropdownMenuItem>
-                <DropdownMenuItem>Purchases</DropdownMenuItem>
-                <DropdownMenuItem>Subscriptions</DropdownMenuItem>
-                <DropdownMenuItem>Downloads</DropdownMenuItem>
-                <DropdownMenuItem>
-                  {user.role === "ADMIN" ? "Dashboard" : "Profile"}
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Button
-                    variant={"destructive"}
-                    size="sm"
-                    className="w-full"
-                    onClick={() => signOut()}
-                  >
-                    <LogOutIcon className="w-4 h-4" />
-                    <span>Logout</span>
-                  </Button>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Button
-              size="sm"
-              className="hidden sm:flex items-center gap-2 rounded-full"
-              asChild
-            >
-              <Link href="/auth/login">
-                <UserIcon className="w-4 h-4" />
-                <span>Create Account</span>
-              </Link>
-            </Button>
-          )}
+          <UserMenu />
 
-          {/* Mobile Menu Toggle (Placeholder for now) */}
+          {/* Mobile Menu Toggle */}
           <MobileMenu />
         </div>
       </div>
     </header>
   );
-}
+});
 
 export default Header;

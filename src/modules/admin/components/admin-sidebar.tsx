@@ -1,10 +1,13 @@
 "use client";
 
-import React from "react";
+import { memo, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
+
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
+import { Separator } from "@/shared/components/ui/separator";
 import { useSidebar } from "../context/sidebar-context";
 import {
   LayoutDashboard,
@@ -26,11 +29,12 @@ interface NavItem {
   label: string;
   href: string;
   icon: React.ReactNode;
-  section?: string;
+  section: string;
 }
 
+// Move navItems outside component to prevent re-creation on every render
 const navItems: NavItem[] = [
-  // ====== الرئيسية ======
+  // Main Section
   {
     label: "Dashboard",
     href: "/admin",
@@ -38,7 +42,7 @@ const navItems: NavItem[] = [
     section: "main",
   },
 
-  // ====== إدارة المتجر ======
+  // Store Management
   {
     label: "Products",
     href: "/admin/products",
@@ -58,7 +62,7 @@ const navItems: NavItem[] = [
     section: "store",
   },
 
-  // ====== المستخدمين والتفاعل ======
+  // Users & Interaction
   {
     label: "Users",
     href: "/admin/users",
@@ -72,7 +76,7 @@ const navItems: NavItem[] = [
     section: "users",
   },
 
-  // ====== التقارير والمالية ======
+  // Reports & Finance
   {
     label: "Downloads",
     href: "/admin/downloads",
@@ -92,7 +96,7 @@ const navItems: NavItem[] = [
     section: "reports",
   },
 
-  // ====== الحساب والإعدادات ======
+  // Account & Settings
   {
     label: "Notifications",
     href: "/admin/notifications",
@@ -113,61 +117,123 @@ const navItems: NavItem[] = [
   },
 ];
 
+// Group items by section
+const groupedNavItems = navItems.reduce(
+  (acc, item) => {
+    const section = item.section || "other";
+    if (!acc[section]) {
+      acc[section] = [];
+    }
+    acc[section].push(item);
+    return acc;
+  },
+  {} as Record<string, NavItem[]>
+);
+
+const sectionOrder = ["main", "store", "users", "reports", "account"];
+const sectionLabels: Record<string, string> = {
+  main: "Main",
+  store: "Store Management",
+  users: "Users & Interaction",
+  reports: "Reports & Finance",
+  account: "Account",
+};
+
+// Memoized NavLink component
+const NavLink = memo(function NavLink({
+  item,
+  isActive,
+  isCollapsed,
+}: {
+  item: NavItem;
+  isActive: boolean;
+  isCollapsed: boolean;
+}) {
+  return (
+    <Link href={item.href}>
+      <Button
+        variant="ghost"
+        className={cn(
+          "w-full h-11 transition-all duration-200",
+          isCollapsed ? "justify-center px-2" : "justify-start gap-3 px-4",
+          isActive
+            ? "bg-primary/10 text-primary hover:bg-primary/15"
+            : "text-muted-foreground hover:text-foreground hover:bg-muted"
+        )}
+        title={isCollapsed ? item.label : undefined}
+      >
+        <span
+          className={cn(
+            "transition-colors shrink-0",
+            isActive ? "text-primary" : "text-muted-foreground"
+          )}
+        >
+          {item.icon}
+        </span>
+        {!isCollapsed && (
+          <span className="text-base font-medium truncate">{item.label}</span>
+        )}
+      </Button>
+    </Link>
+  );
+});
+
 function AdminSidebar() {
   const pathname = usePathname();
   const { isCollapsed } = useSidebar();
 
-  const handleLogout = () => {
-    // Handle logout logic here
-    console.log("Logout clicked");
-  };
+  // Memoize active state checker
+  const isItemActive = useCallback(
+    (href: string) => {
+      if (pathname === href) return true;
+      if (href !== "/admin" && pathname.startsWith(href)) return true;
+      return false;
+    },
+    [pathname]
+  );
+
+  const handleLogout = useCallback(() => {
+    signOut({ callbackUrl: "/" });
+  }, []);
 
   return (
     <aside
       className={cn(
         "h-[calc(100vh-4rem)] sticky bottom-0 bg-background border-r border-border flex flex-col transition-all duration-300 ease-in-out",
-        isCollapsed ? "w-18" : "w-64",
+        isCollapsed ? "w-18" : "w-64"
       )}
     >
       {/* Navigation */}
-      <nav className="flex-1 p-3 overflow-y-auto">
-        <ul className="space-y-1">
-          {navItems.map((item) => {
-            const isActive =
-              pathname === item.href ||
-              (item.href !== "/admin" && pathname.startsWith(item.href));
+      <nav className="flex-1 p-3 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+        <ul className="space-y-6">
+          {sectionOrder.map((sectionKey) => {
+            const items = groupedNavItems[sectionKey];
+            if (!items) return null;
 
             return (
-              <li key={item.href}>
-                <Link href={item.href}>
-                  <Button
-                    variant="ghost"
-                    className={cn(
-                      "w-full h-11 transition-all duration-200",
-                      isCollapsed
-                        ? "justify-center px-2"
-                        : "justify-start gap-3 px-4",
-                      isActive
-                        ? "bg-primary/10 text-primary hover:bg-primary/15"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted",
-                    )}
-                    title={isCollapsed ? item.label : undefined}
-                  >
-                    <span
-                      className={cn(
-                        "transition-colors shrink-0",
-                        isActive ? "text-primary" : "text-muted-foreground",
-                      )}
-                    >
-                      {item.icon}
-                    </span>
-                    {!isCollapsed && (
-                      <span className="text-base font-medium truncate">
-                        {item.label}
-                      </span>
-                    )}
-                  </Button>
-                </Link>
+              <li key={sectionKey}>
+                {/* Section Label */}
+                {!isCollapsed && sectionKey !== "main" && (
+                  <>
+                    <Separator className="my-2" />
+                    <p className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      {sectionLabels[sectionKey]}
+                    </p>
+                  </>
+                )}
+
+                {/* Section Items */}
+                <ul className="space-y-1">
+                  {items.map((item) => (
+                    <li key={item.href}>
+                      <NavLink
+                        item={item}
+                        isActive={isItemActive(item.href)}
+                        isCollapsed={isCollapsed}
+                      />
+                    </li>
+                  ))}
+                </ul>
               </li>
             );
           })}
@@ -181,7 +247,7 @@ function AdminSidebar() {
           onClick={handleLogout}
           className={cn(
             "w-full h-11 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all duration-200",
-            isCollapsed ? "justify-center px-2" : "justify-start gap-3 px-4",
+            isCollapsed ? "justify-center px-2" : "justify-start gap-3 px-4"
           )}
           title={isCollapsed ? "Logout" : undefined}
         >
@@ -195,4 +261,4 @@ function AdminSidebar() {
   );
 }
 
-export default AdminSidebar;
+export default memo(AdminSidebar);

@@ -183,7 +183,7 @@ model Product {
   slug             String          @unique               // معرّف فريد للرابط
   originalPrice    Decimal         @default(0) @db.Decimal(10, 2)    // السعر الأصلي (دقة عشرية: 10 أرقام، 2 بعد الفاصلة)
   price            Decimal         @db.Decimal(10, 2)    // السعر (دقة عشرية: 10 أرقام، 2 بعد الفاصلة)
-  discount         Decimal         @default(0) @db.Decimal(3, 2)  // الخصم (من 0.00 إلى 100.00)
+  discount         Int             @default(0)           // الخصم بالنسبة المئوية (من 0 إلى 100)
   
   // ====== الإحصائيات ======
   salesCount       Int             @default(0)           // عدد المبيعات
@@ -211,6 +211,10 @@ model Product {
   lastUpdate       DateTime        @default(now())       // تاريخ آخر تحديث للمنتج
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
+  
+  // ====== Audit Trail ======
+  createdBy        String?                               // معرّف المستخدم الذي أنشأ المنتج
+  updatedBy        String?                               // معرّف المستخدم الذي عدّل المنتج آخر مرة
 
   // ====== العلاقات مع الجداول الأخرى ======
   reviews                  Review[]                  // التقييمات
@@ -232,6 +236,8 @@ model Product {
   @@index([category])       // للتصفية حسب التصنيف
   @@index([status])         // لعرض المنتجات المنشورة فقط
   @@index([publishedAt])    // لترتيب المنتجات حسب تاريخ النشر
+  @@index([discount])       // للتصفية حسب المنتجات المخفضة
+  @@index([createdBy])      // لعرض منتجات مستخدم معين
   @@map("products")
 }
 

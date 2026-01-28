@@ -502,7 +502,7 @@ function AdminProductsList() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
                             onClick={() =>
-                              router.push(`/products/${product.slug}`)
+                              router.push(`/admin/products/${product.slug}/view`)
                             }
                           >
                             <Eye className="w-4 h-4 mr-2" />

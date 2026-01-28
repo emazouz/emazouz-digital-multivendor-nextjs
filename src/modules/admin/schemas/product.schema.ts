@@ -15,15 +15,24 @@ export const createProductSchema = z.object({
   longDescription: z.string().optional(),
   price: z.number().min(0, "Price must be positive"),
   originalPrice: z.number().min(0, "Original price must be positive"),
-  discount: z.number().min(0).max(100, "Discount must be between 0 and 100"),
+  discount: z.number().int().min(0).max(100, "Discount must be between 0 and 100"),
   category: z.nativeEnum(ProductCategory),
+  subcategory: z.string().optional(),
   status: z.nativeEnum(ProductStatus),
   thumbnailUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
   isHighResolution: z.boolean().default(false),
   isWidgetReady: z.boolean().default(false),
+  layout: z.string().optional(),
+  framework: z.string().optional(),
   fileUrl: z.string().optional(),
   fileName: z.string().optional(),
   fileSize: z.string().optional(),
 });
 
 export type CreateProductInput = z.infer<typeof createProductSchema>;
+
+export const updateProductSchema = createProductSchema.extend({
+  id: z.string().cuid(),
+});
+
+export type UpdateProductInput = z.infer<typeof updateProductSchema>;

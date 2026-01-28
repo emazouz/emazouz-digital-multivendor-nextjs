@@ -8,7 +8,7 @@ export const mapProductToDTO = (product: Product): ProductDTO => {
     ...product,
     originalPrice: product.originalPrice?.toNumber() ?? 0,
     price: product.price?.toNumber() ?? 0,
-    discount: product.discount?.toNumber() ?? 0,
+    discount: product.discount ?? 0,
     averageRating: product.averageRating?.toNumber() ?? 0,
     currency: "USD", // Default currency - change as needed
     publishedAt: product.publishedAt ? product.publishedAt.toISOString() : null,

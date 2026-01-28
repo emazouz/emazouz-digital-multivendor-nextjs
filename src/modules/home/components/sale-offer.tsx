@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { X } from "lucide-react";
 import Link from "next/link";
@@ -10,11 +10,27 @@ interface SaleOfferProps {
   targetDate?: string;
 }
 
-function SaleOffer({ targetDate = "2026-11-14" }: SaleOfferProps) {
+const SaleOffer = memo(function SaleOffer({ 
+  targetDate = "2026-11-14" 
+}: SaleOfferProps) {
   const [isOpen, setIsOpen] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
   const timeLeft = useCountdown(targetDate);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setIsMounted(true);
+    const savedState = localStorage.getItem("saleOfferClosed");
+    if (savedState === "true") {
+      setIsOpen(false);
+    }
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+    localStorage.setItem("saleOfferClosed", "true");
+  }, []);
+
+  if (!isMounted || !isOpen) return null;
 
   return (
     <div className="bg-primary text-primary-foreground h-[50px] block transition-all duration-300 ease-in-out">
@@ -56,14 +72,14 @@ function SaleOffer({ targetDate = "2026-11-14" }: SaleOfferProps) {
           variant="ghost"
           size="icon"
           className="rounded-full h-8 w-8 hover:bg-primary-foreground/20 text-primary-foreground"
-          onClick={() => setIsOpen(false)}
+          onClick={handleClose}
+          aria-label="Close sale offer"
         >
           <X className="h-4 w-4" />
-          <span className="sr-only">Close sale offer</span>
         </Button>
       </div>
     </div>
   );
-}
+});
 
 export default SaleOffer;

@@ -43,8 +43,13 @@ import {
 import {
   createProductSchema,
   CreateProductInput,
+  updateProductSchema,
+  UpdateProductInput,
 } from "../schemas/product.schema";
-import { createProductAction } from "../actions/product.actions";
+import {
+  createProductAction,
+  updateProductAction,
+} from "../actions/product.actions";
 import { ImageUpload } from "@/shared/components/image-upload";
 import { FileUpload } from "@/shared/components/file-upload";
 import { toast } from "sonner"; // Or your preferred toast library
@@ -103,16 +108,27 @@ const getFileExtension = (filename: string): string => {
   return filename.split(".").pop()?.toUpperCase() || "FILE";
 };
 
-export default function AdminProductForm() {
+export default function AdminProductForm({
+  mode = "create",
+  initialData,
+}: {
+  mode?: "create" | "edit";
+  initialData?: UpdateProductInput;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<FormError | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
 
-  const form = useForm<CreateProductInput>({
-    resolver: zodResolver(createProductSchema) as Resolver<CreateProductInput>,
-    defaultValues: {
+  const isEditMode = mode === "edit";
+  const schema = isEditMode ? updateProductSchema : createProductSchema;
+
+  const form = useForm<CreateProductInput | UpdateProductInput>({
+    resolver: zodResolver(schema) as Resolver<
+      CreateProductInput | UpdateProductInput
+    >,
+    defaultValues: initialData || {
       title: "",
       slug: "",
       shortDescription: "",
@@ -121,10 +137,13 @@ export default function AdminProductForm() {
       originalPrice: 0,
       discount: 0,
       category: ProductCategory.THEME,
+      subcategory: "",
       status: ProductStatus.DRAFT,
       thumbnailUrl: "",
       isHighResolution: false,
       isWidgetReady: false,
+      layout: "",
+      framework: "",
       fileUrl: "",
       fileName: "",
       fileSize: "0",
@@ -215,26 +234,36 @@ export default function AdminProductForm() {
     toast.success("File removed");
   }, [form]);
 
-  const onSubmit = useCallback((values: CreateProductInput) => {
-    setError(null);
-    startTransition(async () => {
-      try {
-        const result = await createProductAction(values);
-        if (!result.success && result.error) {
-          setError({ message: result.error });
-          toast.error(result.error);
-        } else {
-          toast.success("Product created successfully!");
-          // Success redirection is handled in the server action
+  const onSubmit = useCallback(
+    (values: CreateProductInput | UpdateProductInput) => {
+      setError(null);
+      startTransition(async () => {
+        try {
+          const result = isEditMode
+            ? await updateProductAction(values as UpdateProductInput)
+            : await createProductAction(values as CreateProductInput);
+
+          if (!result.success && result.error) {
+            setError({ message: result.error });
+            toast.error(result.error);
+          } else if (result.success) {
+            toast.success(
+              isEditMode
+                ? "Product updated successfully!"
+                : "Product created successfully!"
+            );
+            router.push("/admin/products");
+          }
+        } catch (err) {
+          const errorMessage =
+            err instanceof Error ? err.message : "An unexpected error occurred";
+          setError({ message: errorMessage });
+          toast.error(errorMessage);
         }
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "An unexpected error occurred";
-        setError({ message: errorMessage });
-        toast.error(errorMessage);
-      }
-    });
-  }, []);
+      });
+    },
+    [router, isEditMode]
+  );
 
   const isSubmitDisabled =
     isPending || isUploadingImage || isUploadingFile || !isFormValid;
@@ -245,10 +274,12 @@ export default function AdminProductForm() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              Add New Product
+              {isEditMode ? "Edit Product" : "Add New Product"}
             </h1>
             <p className="text-muted-foreground">
-              Create a new product to add to your catalog.
+              {isEditMode
+                ? "Update product information and settings."
+                : "Create a new product to add to your catalog."}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -269,12 +300,12 @@ export default function AdminProductForm() {
               {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  {isEditMode ? "Updating..." : "Saving..."}
                 </>
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  Save Product
+                  {isEditMode ? "Update Product" : "Save Product"}
                 </>
               )}
             </Button>
@@ -441,6 +472,55 @@ export default function AdminProductForm() {
                     )}
                   />
                 </div>
+                <FormField
+                  control={form.control}
+                  name="layout"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Layout Type</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger aria-label="Select layout type">
+                            <SelectValue placeholder="Select layout type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Responsive">Responsive</SelectItem>
+                          <SelectItem value="Fixed">Fixed</SelectItem>
+                          <SelectItem value="Fluid">Fluid</SelectItem>
+                          <SelectItem value="Adaptive">Adaptive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Choose the layout design type
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="framework"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Framework</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g. Underscores, Bootstrap, Custom"
+                          aria-label="Product framework"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        The framework or starter used for development
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </CardContent>
             </Card>
           </div>
@@ -601,6 +681,26 @@ export default function AdminProductForm() {
                           ))}
                         </SelectContent>
                       </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="subcategory"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Subcategory</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g. Corporate, Blog, Portfolio"
+                          aria-label="Product subcategory"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Optional subcategory for better organization
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

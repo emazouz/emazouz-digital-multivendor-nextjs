@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Button } from "@/shared/components/ui/button";
 import {
   Sheet,
@@ -7,7 +8,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/shared/components/ui/sheet";
-import { APP_NAME } from "@/shared/constants/env";
 import {
   MenuIcon,
   ChevronRight,
@@ -34,7 +34,14 @@ const PAGES_MENU = [
   { href: "/cart", label: "Shopping Cart" },
 ];
 
-function MobileMenu() {
+const SOCIAL_LINKS = [
+  { href: "https://facebook.com", icon: Facebook, label: "Facebook" },
+  { href: "https://linkedin.com", icon: Linkedin, label: "LinkedIn" },
+  { href: "https://github.com", icon: Github, label: "GitHub" },
+  { href: "https://instagram.com", icon: Instagram, label: "Instagram" },
+];
+
+const MobileMenu = memo(function MobileMenu() {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -88,29 +95,43 @@ function MobileMenu() {
 
           <Separator />
 
-          {/* Social Media icons */}
-
-          <div className="flex-center gap-2 py-2">
-            <Facebook className="w-5 h-5" />
-            <Linkedin className="w-5 h-5" />
-            <Github className="w-5 h-5" />
-            <Instagram className="w-5 h-5" />
+          {/* Social Media Links */}
+          <div className="flex items-center justify-center gap-4 py-2">
+            {SOCIAL_LINKS.map((social) => {
+              const Icon = social.icon;
+              return (
+                <Link
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                  aria-label={social.label}
+                >
+                  <Icon className="w-5 h-5" />
+                </Link>
+              );
+            })}
           </div>
           <Separator />
 
-          {/* User Actions Placeholder */}
+          {/* User Actions */}
           <div className="flex flex-col gap-2 mt-2">
-            <Button asChild className="w-full rounded-full">
-              <Link href="/auth/login">Sign In</Link>
-            </Button>
-            <Button variant="outline" asChild className="w-full rounded-full">
-              <Link href="/auth/register">Create Account</Link>
-            </Button>
+            <SheetClose asChild>
+              <Button asChild className="w-full rounded-full">
+                <Link href="/auth/login">Sign In</Link>
+              </Button>
+            </SheetClose>
+            <SheetClose asChild>
+              <Button variant="outline" asChild className="w-full rounded-full">
+                <Link href="/auth/register">Create Account</Link>
+              </Button>
+            </SheetClose>
           </div>
         </nav>
       </SheetContent>
     </Sheet>
   );
-}
+});
 
 export default MobileMenu;

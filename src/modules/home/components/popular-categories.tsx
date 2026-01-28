@@ -1,83 +1,95 @@
 "use client";
 
-import React from "react";
+import { memo, useCallback } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 
-function PopularCategories() {
+const categories = [
+  {
+    id: 1,
+    name: "Category 1",
+    image: "/assets/images/thumbs/popular-item1.png",
+    slug: "category-1",
+  },
+  {
+    id: 2,
+    name: "Category 2",
+    image: "/assets/images/thumbs/popular-item2.png",
+    slug: "category-2",
+  },
+  {
+    id: 3,
+    name: "Category 3",
+    image: "/assets/images/thumbs/popular-item3.png",
+    slug: "category-3",
+  },
+  {
+    id: 4,
+    name: "Category 4",
+    image: "/assets/images/thumbs/popular-item4.png",
+    slug: "category-4",
+  },
+  {
+    id: 5,
+    name: "Category 5",
+    image: "/assets/images/thumbs/popular-item5.png",
+    slug: "category-5",
+  },
+  {
+    id: 6,
+    name: "Category 6",
+    image: "/assets/images/thumbs/popular-item6.png",
+    slug: "category-6",
+  },
+  {
+    id: 7,
+    name: "Category 7",
+    image: "/assets/images/thumbs/popular-item7.png",
+    slug: "category-7",
+  },
+  {
+    id: 8,
+    name: "Category 8",
+    image: "/assets/images/thumbs/popular-item8.png",
+    slug: "category-8",
+  },
+  {
+    id: 9,
+    name: "Category 9",
+    image: "/assets/images/thumbs/popular-item9.png",
+    slug: "category-9",
+  },
+  {
+    id: 10,
+    name: "Category 10",
+    image: "/assets/images/thumbs/popular-item10.png",
+    slug: "category-10",
+  },
+  {
+    id: 11,
+    name: "Category 11",
+    image: "/assets/images/thumbs/popular-item11.png",
+    slug: "category-11",
+  },
+];
+
+const PopularCategories = memo(function PopularCategories() {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
     loop: true,
     dragFree: true,
   });
 
-  const scrollPrev = React.useCallback(() => {
+  const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev();
   }, [emblaApi]);
 
-  const scrollNext = React.useCallback(() => {
+  const scrollNext = useCallback(() => {
     if (emblaApi) emblaApi.scrollNext();
   }, [emblaApi]);
-
-  const categories = [
-    {
-      id: 1,
-      name: "Category 1",
-      image: "/assets/images/thumbs/popular-item1.png",
-    },
-    {
-      id: 2,
-      name: "Category 2",
-      image: "/assets/images/thumbs/popular-item2.png",
-    },
-    {
-      id: 3,
-      name: "Category 3",
-      image: "/assets/images/thumbs/popular-item3.png",
-    },
-    {
-      id: 4,
-      name: "Category 4",
-      image: "/assets/images/thumbs/popular-item4.png",
-    },
-    {
-      id: 5,
-      name: "Category 5",
-      image: "/assets/images/thumbs/popular-item5.png",
-    },
-    {
-      id: 6,
-      name: "Category 6",
-      image: "/assets/images/thumbs/popular-item6.png",
-    },
-    {
-      id: 7,
-      name: "Category 7",
-      image: "/assets/images/thumbs/popular-item7.png",
-    },
-    {
-      id: 8,
-      name: "Category 8",
-      image: "/assets/images/thumbs/popular-item8.png",
-    },
-    {
-      id: 9,
-      name: "Category 9",
-      image: "/assets/images/thumbs/popular-item9.png",
-    },
-    {
-      id: 10,
-      name: "Category 10",
-      image: "/assets/images/thumbs/popular-item10.png",
-    },
-    {
-      id: 11,
-      name: "Category 11",
-      image: "/assets/images/thumbs/popular-item11.png",
-    },
-  ];
 
   return (
     <section className="bg-background/80 w-full py-8">
@@ -120,8 +132,9 @@ function PopularCategories() {
         >
           <div className="flex gap-4 touch-pan-y py-2">
             {categories.map((category) => (
-              <div
+              <Link
                 key={category.id}
+                href={`/products?category=${category.slug}`}
                 className="flex-[0_0_auto] min-w-0 w-[140px] md:w-[160px] cursor-pointer group"
               >
                 <div className="flex flex-col items-center gap-3">
@@ -137,13 +150,13 @@ function PopularCategories() {
                     {category.name}
                   </h3>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
       </div>
     </section>
   );
-}
+});
 
 export default PopularCategories;

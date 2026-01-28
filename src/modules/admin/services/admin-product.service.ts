@@ -51,7 +51,7 @@ export const mapProductToAdminDTO = (product: Product): AdminProductDTO => {
     status: product.status,
     price: product.price?.toNumber() ?? 0,
     originalPrice: product.originalPrice?.toNumber() ?? 0,
-    discount: product.discount?.toNumber() ?? 0,
+    discount: product.discount ?? 0,
     salesCount: product.salesCount,
     averageRating: product.averageRating?.toNumber() ?? 0,
     createdAt: product.createdAt.toISOString(),
@@ -62,6 +62,38 @@ export const mapProductToAdminDTO = (product: Product): AdminProductDTO => {
 // ============================
 // Admin Product Service Functions
 // ============================
+
+/**
+ * Get single product by slug for admin
+ */
+export const getProductBySlug = async (slug: string) => {
+  const product = await prisma.product.findUnique({
+    where: { slug },
+    include: {
+      productFiles: true,
+      productImages: {
+        orderBy: { displayOrder: "asc" },
+      },
+      productTags: {
+        include: { tag: true },
+      },
+      productFeatures: {
+        include: { feature: true },
+      },
+      productCompatibles: {
+        include: { compatible: true },
+      },
+      productSoftwareVersions: {
+        include: { softwareVersion: true },
+      },
+      productBrowsers: {
+        include: { browser: true },
+      },
+    },
+  });
+
+  return product;
+};
 
 /**
  * Get paginated products list for admin dashboard

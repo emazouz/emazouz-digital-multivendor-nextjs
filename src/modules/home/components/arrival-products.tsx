@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import ProductCard from "@/modules/products/components/product-card";
 import { Button } from "@/shared/components/ui/button";
 import { ExternalLink } from "lucide-react";
@@ -17,7 +17,7 @@ import {
   fetchProductsByCategoryAction,
 } from "@/modules/products/actions";
 
-function ArrivalProducts() {
+const ArrivalProducts = memo(function ArrivalProducts() {
   const searchParams = useSearchParams();
   const [featuredProducts, setFeaturedProducts] = useState<ProductDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,43 +29,31 @@ function ArrivalProducts() {
       ? (categoryParam as ProductCategory)
       : "All";
 
-  const fetchFeaturedProducts = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const products = await fetchProductsAction();
-      setFeaturedProducts(products);
-    } catch (e) {
-      setError("Failed to load featured products.");
-      console.error(e);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const getProductsByCategory = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const products = await fetchProductsByCategoryAction(
-        category as ProductCategory,
-      );
-      setFeaturedProducts(products);
-    } catch (e) {
-      setError("Failed to load products for this category.");
-      console.error(e);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [category]);
-
   useEffect(() => {
-    if (category !== "All") {
-      getProductsByCategory();
-    } else {
-      fetchFeaturedProducts();
-    }
-  }, [fetchFeaturedProducts, getProductsByCategory, category]);
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const products = category !== "All"
+          ? await fetchProductsByCategoryAction(category as ProductCategory)
+          : await fetchProductsAction();
+        
+        setFeaturedProducts(products);
+      } catch (e) {
+        setError(
+          category !== "All"
+            ? "Failed to load products for this category."
+            : "Failed to load featured products."
+        );
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [category]);
 
   return (
     <div className="w-full bg-muted py-8 space-y-10">
@@ -113,10 +101,14 @@ function ArrivalProducts() {
             </div>
           )}
         </motion.div>
-        {error && <div className="text-red-500 text-center">{error}</div>}
+        {error && (
+          <div className="col-span-full text-center py-4 text-red-500 bg-red-50 dark:bg-red-950/20 rounded-lg">
+            {error}
+          </div>
+        )}
       </div>
     </div>
   );
-}
+});
 
 export default ArrivalProducts;
