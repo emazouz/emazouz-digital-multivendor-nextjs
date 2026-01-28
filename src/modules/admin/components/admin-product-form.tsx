@@ -250,7 +250,7 @@ export default function AdminProductForm({
             toast.success(
               isEditMode
                 ? "Product updated successfully!"
-                : "Product created successfully!"
+                : "Product created successfully!",
             );
             router.push("/admin/products");
           }
@@ -262,7 +262,7 @@ export default function AdminProductForm({
         }
       });
     },
-    [router, isEditMode]
+    [router, isEditMode],
   );
 
   const isSubmitDisabled =
@@ -777,123 +777,131 @@ export default function AdminProductForm({
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Digital Product</CardTitle>
-                <CardDescription>
-                  Upload the main product file (ZIP, RAR, PDF).
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="fileUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Product File</FormLabel>
-                      <FormControl>
-                        {!fileUrl ? (
-                          <FileUpload
-                            endpoint="productFile"
-                            value={field.value}
-                            onClientUploadComplete={(res?: UploadResponse) => {
-                              setIsUploadingFile(false);
-                              if (!res) return;
+            {mode === "edit" && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Digital Product</CardTitle>
+                  <CardDescription>
+                    Upload the main product file (ZIP, RAR, PDF).
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="fileUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Product File</FormLabel>
+                        <FormControl>
+                          {!fileUrl ? (
+                            <FileUpload
+                              endpoint="productFile"
+                              value={field.value}
+                              onClientUploadComplete={(
+                                res?: UploadResponse,
+                              ) => {
+                                setIsUploadingFile(false);
+                                if (!res) return;
 
-                              // Validate file type
-                              if (
-                                !validateFileType(res.url, [
-                                  "zip",
-                                  "rar",
-                                  "pdf",
-                                ])
-                              ) {
+                                // Validate file type
+                                if (
+                                  !validateFileType(res.url, [
+                                    "zip",
+                                    "rar",
+                                    "pdf",
+                                  ])
+                                ) {
+                                  setError({
+                                    message:
+                                      "Invalid file type. Only ZIP, RAR, and PDF files are allowed.",
+                                    field: "fileUrl",
+                                  });
+                                  toast.error("Invalid file type");
+                                  return;
+                                }
+
+                                field.onChange(res.url);
+                                form.setValue("fileName", res.name);
+                                form.setValue("fileSize", res.size.toString());
+                                toast.success("File uploaded successfully");
+                              }}
+                              onUploadError={(error: Error) => {
+                                setIsUploadingFile(false);
+                                const errorMessage = `Upload failed: ${error.message}`;
                                 setError({
-                                  message:
-                                    "Invalid file type. Only ZIP, RAR, and PDF files are allowed.",
+                                  message: errorMessage,
                                   field: "fileUrl",
                                 });
-                                toast.error("Invalid file type");
-                                return;
-                              }
-
-                              field.onChange(res.url);
-                              form.setValue("fileName", res.name);
-                              form.setValue("fileSize", res.size.toString());
-                              toast.success("File uploaded successfully");
-                            }}
-                            onUploadError={(error: Error) => {
-                              setIsUploadingFile(false);
-                              const errorMessage = `Upload failed: ${error.message}`;
-                              setError({
-                                message: errorMessage,
-                                field: "fileUrl",
-                              });
-                              toast.error(errorMessage);
-                            }}
-                            onUploadBegin={() => {
-                              setIsUploadingFile(true);
-                              setError(null);
-                            }}
-                          />
-                        ) : (
-                          <div className="space-y-3">
-                            {/* File Preview */}
-                            <div className="flex items-center justify-between rounded-lg border bg-muted/50 p-4">
-                              <div className="flex items-center gap-3 flex-1 min-w-0">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 shrink-0">
-                                  <File className="h-6 w-6 text-primary" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium truncate">
-                                    {fileName || "Product file"}
-                                  </p>
-                                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                    <span className="font-medium">
-                                      {getFileExtension(fileName || "")}
-                                    </span>
-                                    <span>•</span>
-                                    <span>{formatFileSize(fileSize as string || 0)}</span>
+                                toast.error(errorMessage);
+                              }}
+                              onUploadBegin={() => {
+                                setIsUploadingFile(true);
+                                setError(null);
+                              }}
+                            />
+                          ) : (
+                            <div className="space-y-3">
+                              {/* File Preview */}
+                              <div className="flex items-center justify-between rounded-lg border bg-muted/50 p-4">
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                  <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 shrink-0">
+                                    <File className="h-6 w-6 text-primary" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium truncate">
+                                      {fileName || "Product file"}
+                                    </p>
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                      <span className="font-medium">
+                                        {getFileExtension(fileName || "")}
+                                      </span>
+                                      <span>•</span>
+                                      <span>
+                                        {formatFileSize(
+                                          (fileSize as string) || 0,
+                                        )}
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 shrink-0"
+                                  onClick={handleDeleteFile}
+                                  disabled={isPending}
+                                  aria-label="Delete file"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
                               </div>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 shrink-0"
-                                onClick={handleDeleteFile}
-                                disabled={isPending}
-                                aria-label="Delete file"
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                            {/* File Info */}
-                            <div className="rounded-md border border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-900 p-3">
-                              <div className="flex items-center gap-2">
-                                <div className="h-2 w-2 rounded-full bg-green-500" />
-                                <p className="text-xs font-medium text-green-900 dark:text-green-100">
-                                  File uploaded successfully
+                              {/* File Info */}
+                              <div className="rounded-md border border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-900 p-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="h-2 w-2 rounded-full bg-green-500" />
+                                  <p className="text-xs font-medium text-green-900 dark:text-green-100">
+                                    File uploaded successfully
+                                  </p>
+                                </div>
+                                <p className="mt-1 text-xs text-green-700 dark:text-green-300">
+                                  Click the X button above to upload a different
+                                  file
                                 </p>
                               </div>
-                              <p className="mt-1 text-xs text-green-700 dark:text-green-300">
-                                Click the X button above to upload a different
-                                file
-                              </p>
                             </div>
-                          </div>
-                        )}
-                      </FormControl>
-                      <FormDescription>
-                        Allowed formats: ZIP, RAR, PDF. Max size: 1GB.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
+                          )}
+                        </FormControl>
+                        <FormDescription>
+                          Allowed formats: ZIP, RAR, PDF. Max size: 1GB.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </form>

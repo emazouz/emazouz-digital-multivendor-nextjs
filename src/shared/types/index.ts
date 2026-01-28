@@ -38,3 +38,13 @@ export interface CategoryDTO {
   createdAt: string; // serialized date
   updatedAt: string; // serialized date
 }
+
+
+// Navigational structure for admin panel / start
+export interface NavItem {
+  label: string;
+  href: string;
+  icon: React.ReactNode;
+  section: string;
+}
+// Navigational structure for admin panel / end

@@ -18,13 +18,13 @@ import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
-import { Separator } from "@/shared/components/ui/separator";
 import { getProductBySlug } from "@/modules/admin/services/admin-product.service";
+import { formatPrice } from "@/shared/lib/format";
+import { formatDate } from "@/shared/lib/date";
 
 export async function generateMetadata({
   params,
@@ -58,18 +58,7 @@ export default async function ViewProductPage({
     notFound();
   }
 
-  const formatDate = (date: Date | null) => {
-    if (!date) return "N/A";
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
 
-  const formatPrice = (price: string | number) => {
-    return Number(price || 0).toFixed(2);
-  };
 
   return (
     <div className="space-y-6 section">
