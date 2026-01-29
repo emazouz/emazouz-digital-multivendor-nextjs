@@ -58,8 +58,6 @@ export default async function ViewProductPage({
     notFound();
   }
 
-
-
   return (
     <div className="space-y-6 section">
       {/* Header */}
@@ -87,7 +85,7 @@ export default async function ViewProductPage({
         </Link>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-[2fr_1fr]">
+      <div className="grid gap-lg md:grid-cols-[2fr_1fr]">
         {/* Main Column */}
         <div className="space-y-6">
           {/* Basic Information */}
@@ -95,7 +93,7 @@ export default async function ViewProductPage({
             <CardHeader>
               <CardTitle>Basic Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-md">
               <div>
                 <label className="text-sm font-medium text-muted-foreground">
                   Title
@@ -139,7 +137,7 @@ export default async function ViewProductPage({
             <CardHeader>
               <CardTitle>Features & Specifications</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-md">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">
@@ -184,7 +182,7 @@ export default async function ViewProductPage({
           {product.productFiles.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-sm">
                   <Download className="h-5 w-5" />
                   Product Files
                 </CardTitle>
@@ -223,7 +221,7 @@ export default async function ViewProductPage({
           {product.productImages.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-sm">
                   <ImageIcon className="h-5 w-5" />
                   Product Gallery
                 </CardTitle>
@@ -280,7 +278,7 @@ export default async function ViewProductPage({
           {/* Pricing */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-sm">
                 <DollarSign className="h-5 w-5" />
                 Pricing
               </CardTitle>
@@ -324,7 +322,7 @@ export default async function ViewProductPage({
           {/* Category */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-sm">
                 <Tag className="h-5 w-5" />
                 Category
               </CardTitle>
@@ -370,7 +368,7 @@ export default async function ViewProductPage({
           {/* Statistics */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-sm">
                 <Package className="h-5 w-5" />
                 Statistics
               </CardTitle>
@@ -397,7 +395,7 @@ export default async function ViewProductPage({
           {/* Dates */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-sm">
                 <Calendar className="h-5 w-5" />
                 Dates
               </CardTitle>

@@ -49,7 +49,7 @@ export default function Footer() {
         {/* Links Grid */}
         <div className="py-16 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
           {/* Brand Column */}
-          <div className="col-span-2 lg:col-span-2 space-y-4">
+          <div className="col-span-2 lg:col-span-2 space-md">
             <Link href="/" className="inline-block">
               <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 Emazouz Digital
@@ -68,7 +68,7 @@ export default function Footer() {
           </div>
 
           {/* Links Columns */}
-          <div className="space-y-4">
+          <div className="space-md">
             <h4 className="font-bold text-foreground">Marketplace</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li>
@@ -86,7 +86,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-md">
             <h4 className="font-bold text-foreground">Company</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li>
@@ -104,7 +104,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-md">
             <h4 className="font-bold text-foreground">Legal</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li>
@@ -126,7 +126,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="py-8 border-t border-border/50 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <p>© 2024 Emazouz Digital. All rights reserved.</p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-sm">
             <span>Made with</span>
             <Heart className="w-4 h-4 text-rose-500 fill-current animate-pulse" />
             <span>for creators.</span>

@@ -60,7 +60,7 @@ const MobileMenu = memo(function MobileMenu() {
 
         <nav className="flex flex-col gap-4 px-4">
           {/* Main Navigation */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-sm">
             {NAV_LINKS.map((link) => (
               <SheetClose key={link.href} asChild>
                 <Link
@@ -77,7 +77,7 @@ const MobileMenu = memo(function MobileMenu() {
           <Separator />
 
           {/* Pages Menu */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-sm">
             <h3 className="text-sm font-semibold text-muted-foreground mb-1">
               Pages
             </h3>
@@ -116,7 +116,7 @@ const MobileMenu = memo(function MobileMenu() {
           <Separator />
 
           {/* User Actions */}
-          <div className="flex flex-col gap-2 mt-2">
+          <div className="flex flex-col gap-sm mt-2">
             <SheetClose asChild>
               <Button asChild className="w-full rounded-full">
                 <Link href="/auth/login">Sign In</Link>

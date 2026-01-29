@@ -1,3 +1,5 @@
+// middleware.ts
+
 import { NextResponse } from "next/server";
 import { auth } from "@/shared/lib/auth";
 
@@ -113,6 +115,45 @@ function isApiAuthRoute(pathname: string): boolean {
   return pathname.startsWith(apiAuthPrefix);
 }
 
+/**
+ * Add security headers to response
+ */
+function addSecurityHeaders(
+  response: NextResponse,
+  pathname: string,
+): NextResponse {
+  // Common security headers for all routes
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-XSS-Protection", "1; mode=block");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+
+  // Strict CSP for admin and auth routes
+  if (isAdminRoute(pathname) || isAuthRoute(pathname)) {
+    response.headers.set("X-Frame-Options", "DENY");
+    response.headers.set(
+      "Permissions-Policy",
+      "geolocation=(), microphone=(), camera=()",
+    );
+  }
+
+  // SEO headers for sensitive pages
+  if (isAdminRoute(pathname)) {
+    response.headers.set(
+      "X-Robots-Tag",
+      "noindex, nofollow, noarchive, nocache",
+    );
+  } else if (isAuthRoute(pathname)) {
+    // Allow following links but don't index auth pages
+    response.headers.set("X-Robots-Tag", "noindex, noarchive");
+  } else if (isProtectedRoute(pathname)) {
+    // Don't index protected user pages
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
+
+  return response;
+}
+
 // ========================================
 // Middleware
 // ========================================
@@ -141,9 +182,13 @@ export default auth((req) => {
   if (isAuthRoute(pathname)) {
     // Redirect logged-in users away from auth pages
     if (isLoggedIn) {
-      return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
+      const response = NextResponse.redirect(
+        new URL(DEFAULT_LOGIN_REDIRECT, nextUrl),
+      );
+      return addSecurityHeaders(response, pathname);
     }
-    return NextResponse.next();
+    const response = NextResponse.next();
+    return addSecurityHeaders(response, pathname);
   }
 
   // 4. Handle admin routes
@@ -151,32 +196,40 @@ export default auth((req) => {
     // Not logged in -> redirect to login
     if (!isLoggedIn) {
       const callbackUrl = encodeURIComponent(pathname + nextUrl.search);
-      return NextResponse.redirect(
+      const response = NextResponse.redirect(
         new URL(`${ADMIN_LOGIN_PATH}?callbackUrl=${callbackUrl}`, nextUrl),
       );
+      return addSecurityHeaders(response, pathname);
     }
 
     // Logged in but not admin -> redirect to home
     if (userRole !== "ADMIN") {
-      return NextResponse.redirect(new URL(UNAUTHORIZED_PATH, nextUrl));
+      const response = NextResponse.redirect(
+        new URL(UNAUTHORIZED_PATH, nextUrl),
+      );
+      return addSecurityHeaders(response, pathname);
     }
 
-    return NextResponse.next();
+    const response = NextResponse.next();
+    return addSecurityHeaders(response, pathname);
   }
 
   // 5. Handle protected routes
   if (isProtectedRoute(pathname)) {
     if (!isLoggedIn) {
       const callbackUrl = encodeURIComponent(pathname + nextUrl.search);
-      return NextResponse.redirect(
+      const response = NextResponse.redirect(
         new URL(`${LOGIN_PATH}?callbackUrl=${callbackUrl}`, nextUrl),
       );
+      return addSecurityHeaders(response, pathname);
     }
-    return NextResponse.next();
+    const response = NextResponse.next();
+    return addSecurityHeaders(response, pathname);
   }
 
   // 6. Allow public routes and everything else
-  return NextResponse.next();
+  const response = NextResponse.next();
+  return addSecurityHeaders(response, pathname);
 });
 
 // ========================================

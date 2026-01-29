@@ -27,10 +27,12 @@ const Banner = memo(function Banner() {
     (e: React.FormEvent) => {
       e.preventDefault();
       if (searchQuery.trim()) {
-        router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+        router.push(
+          `/products?search=${encodeURIComponent(searchQuery.trim())}`,
+        );
       }
     },
-    [searchQuery, router]
+    [searchQuery, router],
   );
 
   return (
@@ -73,9 +75,9 @@ const Banner = memo(function Banner() {
       </motion.div>
 
       <div className="wrapper relative z-10">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
+        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-sm0">
           {/* Left Column: Content */}
-          <div className="flex flex-col gap-6 ">
+          <div className="flex flex-col gap-lg ">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}

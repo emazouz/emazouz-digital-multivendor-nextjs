@@ -1,6 +1,24 @@
+// src/app/admin/products/page.tsx
+
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import AdminProductsList from "@/modules/admin/components/admin-products-list";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+
+// Metadata for admin page
+export const metadata: Metadata = {
+  title: "Products Management - Admin Dashboard | Emazouz Digital",
+  description:
+    "Manage your products, inventory, and pricing in the Emazouz Digital admin dashboard.",
+  robots: {
+    index: false, // Prevent indexing admin pages
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
+};
 
 function ProductsPageSkeleton() {
   return (

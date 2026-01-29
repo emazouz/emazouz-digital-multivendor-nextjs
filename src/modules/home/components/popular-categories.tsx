@@ -93,12 +93,10 @@ const PopularCategories = memo(function PopularCategories() {
 
   return (
     <section className="bg-background/80 w-full py-8">
-      <div className="wrapper flex flex-col gap-6">
+      <div className="wrapper flex flex-col gap-lg">
         <div className="flex items-center justify-between">
-          <h2 className="bold-h1 caveat-brush-regular">
-            Popular Categories
-          </h2>
-          <div className="flex items-center gap-2">
+          <h2 className="bold-h1 caveat-brush-regular">Popular Categories</h2>
+          <div className="flex items-center gap-sm">
             <Button
               onClick={scrollPrev}
               variant={"outline"}

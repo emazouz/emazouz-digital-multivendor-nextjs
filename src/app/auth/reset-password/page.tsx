@@ -1,13 +1,18 @@
-import ResetForm from "@/modules/auth/components/reset-form";
-import { Metadata } from "next";
+// src/app/auth/reset-password/page.tsx
+
+import ResetPasswordForm from "@/modules/auth/components/reset-password-form";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Forgot Password",
-  description: "Reset your password",
+  title: "Reset Password - Emazouz Digital",
+  description: "Create a new password for your Emazouz Digital account.",
+  robots: {
+    index: false,
+    follow: true,
+    noarchive: true,
+  },
 };
 
-const ResetPage = () => {
-  return <ResetForm />;
-};
-
-export default ResetPage;
+export default function ResetPasswordPage() {
+  return <ResetPasswordForm />;
+}

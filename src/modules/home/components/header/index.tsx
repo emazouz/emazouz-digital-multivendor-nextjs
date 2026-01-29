@@ -29,26 +29,16 @@ import {
 } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import MobileMenu from "./mobile-menu";
-
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/digital-products", label: "Digital Products" },
-  { href: "/blog", label: "Blog" },
-];
-
-const PAGES_MENU = [
-  { href: "/follow-us", label: "Follow Us" },
-  { href: "/terms", label: "Terms & Conditions" },
-  { href: "/privacy", label: "Privacy Policy" },
-  { href: "/cart", label: "Shopping Cart" },
-];
+import { NAV_LINKS, PAGES_MENU } from "@/shared/constants/nav-items";
 
 const UserMenu = memo(function UserMenu() {
   const { data: session } = useSession();
   const user = session?.user;
 
   const userInitial = useMemo(() => {
-    return user?.name?.charAt(0).toUpperCase() || "U";
+
+    const name = (user?.name || "Unknown ").split(" ");
+    return name[0]?.charAt(0).toUpperCase() + name[1]?.charAt(0).toUpperCase();
   }, [user?.name]);
 
   const handleLogout = useCallback(() => {
@@ -59,7 +49,7 @@ const UserMenu = memo(function UserMenu() {
     return (
       <Button
         size="sm"
-        className="hidden sm:flex items-center gap-2 rounded-full"
+        className="hidden sm:flex items-center gap-sm rounded-full"
         asChild
       >
         <Link href="/auth/login">
@@ -75,16 +65,20 @@ const UserMenu = memo(function UserMenu() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            {user.image && <AvatarImage src={user.image} alt={user.name || "User"} />}
+            {user.image && (
+              <AvatarImage src={user.image} alt={user.name || "User"} />
+            )}
             <AvatarFallback>{userInitial}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem disabled>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-sm">
             <Avatar className="h-8 w-8">
-              {user.image && <AvatarImage src={user.image} alt={user.name || "User"} />}
+              {user.image && (
+                <AvatarImage src={user.image} alt={user.name || "User"} />
+              )}
               <AvatarFallback>{userInitial}</AvatarFallback>
             </Avatar>
             <div>
@@ -127,7 +121,7 @@ const UserMenu = memo(function UserMenu() {
 const Header = memo(function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-muted/95 backdrop-blur supports-[backdrop-filter]:bg-muted/60">
-      <div className="wrapper flex h-17.5 items-center justify-between">
+      <div className="wrapper h-17.5 flex items-center justify-between">
         <Logo />
 
         {/* Desktop Navigation */}
@@ -166,7 +160,7 @@ const Header = memo(function Header() {
 
         {/* Right Section */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-sm">
             {/* Notification */}
             <Button
               variant="ghost"
@@ -217,7 +211,7 @@ const Header = memo(function Header() {
                 <Heart className="size-5" />
                 <Badge
                   variant="default"
-                  className="absolute top-1.5 right-1.5 h-4 w-4 p-0 flex items-center justify-center text-xs"
+                  className="absolute top-1.5 right-1.5 h-4 w-4 p-0 flex justify-center items-center text-xs"
                 >
                   0
                 </Badge>

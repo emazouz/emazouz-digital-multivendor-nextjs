@@ -34,17 +34,18 @@ const ArrivalProducts = memo(function ArrivalProducts() {
       try {
         setIsLoading(true);
         setError(null);
-        
-        const products = category !== "All"
-          ? await fetchProductsByCategoryAction(category as ProductCategory)
-          : await fetchProductsAction();
-        
+
+        const products =
+          category !== "All"
+            ? await fetchProductsByCategoryAction(category as ProductCategory)
+            : await fetchProductsAction();
+
         setFeaturedProducts(products);
       } catch (e) {
         setError(
           category !== "All"
             ? "Failed to load products for this category."
-            : "Failed to load featured products."
+            : "Failed to load featured products.",
         );
         console.error(e);
       } finally {
@@ -58,7 +59,7 @@ const ArrivalProducts = memo(function ArrivalProducts() {
   return (
     <div className="w-full bg-muted py-8 space-y-10">
       <div className="wrapper">
-        <div className="flex-between">
+        <div className="flex items-center justify-between">
           <h2 className="bold-h1 caveat-brush-regular">New Arrival Products</h2>
           <Link href="/products" className="text-primary">
             <Button variant={"outline"} className="px-4 rounded-full">
@@ -71,12 +72,12 @@ const ArrivalProducts = memo(function ArrivalProducts() {
         <div className="w-full py-6">
           <CategoryList />
         </div>
-        <motion.div layout className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <motion.div layout className="grid grid-cols-1 md:grid-cols-3 gap-lg">
           {isLoading ? (
             Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="flex flex-col space-y-3">
                 <Skeleton className="h-[250px] w-full rounded-xl" />
-                <div className="space-y-2">
+                <div className="space-sm">
                   <Skeleton className="h-4 w-full" />
                   <Skeleton className="h-4 w-2/3" />
                 </div>

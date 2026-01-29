@@ -9,12 +9,9 @@ import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
 import { useSidebar } from "../context/sidebar-context";
-import {
-  LogOut,
-} from "lucide-react";
+import { LogOut } from "lucide-react";
 import { NAV_ITEMS } from "@/shared/constants/nav-items";
 import { NavItem } from "@/shared/types";
-
 
 // Group items by section
 const groupedNavItems = NAV_ITEMS.reduce(
@@ -26,7 +23,7 @@ const groupedNavItems = NAV_ITEMS.reduce(
     acc[section].push(item);
     return acc;
   },
-  {} as Record<string, NavItem[]>
+  {} as Record<string, NavItem[]>,
 );
 
 const sectionOrder = ["main", "store", "users", "reports", "account"];
@@ -57,14 +54,14 @@ const NavLink = memo(function NavLink({
           isCollapsed ? "justify-center px-2" : "justify-start gap-3 px-4",
           isActive
             ? "bg-primary/10 text-primary hover:bg-primary/15"
-            : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            : "text-muted-foreground hover:text-foreground hover:bg-muted",
         )}
         title={isCollapsed ? item.label : undefined}
       >
         <span
           className={cn(
             "transition-colors shrink-0",
-            isActive ? "text-primary" : "text-muted-foreground"
+            isActive ? "text-primary" : "text-muted-foreground",
           )}
         >
           {item.icon}
@@ -88,7 +85,7 @@ function AdminSidebar() {
       if (href !== "/admin" && pathname.startsWith(href)) return true;
       return false;
     },
-    [pathname]
+    [pathname],
   );
 
   const handleLogout = useCallback(() => {
@@ -99,7 +96,7 @@ function AdminSidebar() {
     <aside
       className={cn(
         "h-[calc(100vh-4rem)] sticky bottom-0 bg-background border-r border-border flex flex-col transition-all duration-300 ease-in-out",
-        isCollapsed ? "w-18" : "w-64"
+        isCollapsed ? "w-18" : "w-64",
       )}
     >
       {/* Navigation */}
@@ -146,7 +143,7 @@ function AdminSidebar() {
           onClick={handleLogout}
           className={cn(
             "w-full h-11 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all duration-200",
-            isCollapsed ? "justify-center px-2" : "justify-start gap-3 px-4"
+            isCollapsed ? "justify-center px-2" : "justify-start gap-3 px-4",
           )}
           title={isCollapsed ? "Logout" : undefined}
         >

@@ -137,7 +137,7 @@ const LoginForm = () => {
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email Field */}
-            <motion.div variants={itemVariants} className="space-y-2">
+            <motion.div variants={itemVariants} className="space-sm">
               <Label
                 htmlFor="email"
                 className="block text-base font-semibold text-foreground"
@@ -161,7 +161,7 @@ const LoginForm = () => {
             </motion.div>
 
             {/* Password Field */}
-            <motion.div variants={itemVariants} className="space-y-2">
+            <motion.div variants={itemVariants} className="space-sm">
               <Label
                 htmlFor="password"
                 className="block text-base font-semibold text-foreground"
@@ -202,7 +202,7 @@ const LoginForm = () => {
               variants={itemVariants}
               className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-2"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-sm">
                 <Checkbox
                   id="keep-signed-in"
                   checked={keepSignedIn}
@@ -235,7 +235,7 @@ const LoginForm = () => {
                 className="w-full rounded-full h-12 disabled:opacity-70 hover:scale-[1.02] active:scale-[0.98] transition-transform"
               >
                 {isLoading ? (
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-sm">
                     <Loader size="sm" />
                     Signing in...
                   </span>
@@ -267,7 +267,7 @@ const LoginForm = () => {
                 variant={"outline"}
                 onClick={handleGitHubSignIn}
                 disabled={isLoading}
-                className="w-full rounded-full h-12 flex-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                className="w-full rounded-full h-12 flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-transform"
               >
                 <Image
                   src="/assets/svg/github.svg"

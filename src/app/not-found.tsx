@@ -44,7 +44,7 @@ export default function NotFound() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="space-y-4"
+          className="space-md"
         >
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
             Oops! We couldn&rsquo;t find that page.
@@ -129,7 +129,7 @@ export default function NotFound() {
           <span className="text-border">|</span>
           <button className="flex items-center hover:text-purple-600 transition-colors">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Go back
+            <span>Go back</span>
           </button>
         </motion.div>
 

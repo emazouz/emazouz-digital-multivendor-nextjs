@@ -10,8 +10,8 @@ interface SaleOfferProps {
   targetDate?: string;
 }
 
-const SaleOffer = memo(function SaleOffer({ 
-  targetDate = "2026-11-14" 
+const SaleOffer = memo(function SaleOffer({
+  targetDate = "2026-11-14",
 }: SaleOfferProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
@@ -52,7 +52,7 @@ const SaleOffer = memo(function SaleOffer({
         </div>
 
         {/* sale offer title */}
-        <div className="flex items-center gap-2 mx-auto md:mx-0">
+        <div className="flex items-center gap-sm mx-auto md:mx-0">
           <p className="text-sm font-medium">
             New Year Flash Sale Offer{" "}
             <strong className="text-md ml-1 text-yellow-300">45% OFF</strong>

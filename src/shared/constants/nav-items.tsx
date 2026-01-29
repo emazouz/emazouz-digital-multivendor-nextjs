@@ -1,4 +1,5 @@
-import React from "react";
+// admin navigation items / start
+
 import {
   LayoutDashboard,
   User,
@@ -14,7 +15,6 @@ import {
   Ticket,
 } from "lucide-react";
 import { NavItem } from "../types";
-
 
 // Move navItems outside component to prevent re-creation on every render
 export const NAV_ITEMS: NavItem[] = [
@@ -100,3 +100,19 @@ export const NAV_ITEMS: NavItem[] = [
     section: "account",
   },
 ];
+
+// admin navigation items / end
+
+const NAV_LINKS = [
+  { href: "/", label: "Home" },
+  { href: "/digital-products", label: "Digital Products" },
+  { href: "/blog", label: "Blog" },
+];
+
+const PAGES_MENU = [
+  { href: "/follow-us", label: "Follow Us" },
+  { href: "/terms", label: "Terms & Conditions" },
+  { href: "/privacy", label: "Privacy Policy" },
+  { href: "/cart", label: "Shopping Cart" },
+];
+export { NAV_LINKS, PAGES_MENU };

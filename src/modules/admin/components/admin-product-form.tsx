@@ -282,7 +282,7 @@ export default function AdminProductForm({
                 : "Create a new product to add to your catalog."}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-sm">
             <Button
               variant="outline"
               type="button"
@@ -332,7 +332,7 @@ export default function AdminProductForm({
                   Basic details about your product.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-md">
                 <FormField
                   control={form.control}
                   name="title"
@@ -427,7 +427,7 @@ export default function AdminProductForm({
               <CardHeader>
                 <CardTitle>Features & Specifications</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-md">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -531,7 +531,7 @@ export default function AdminProductForm({
               <CardHeader>
                 <CardTitle>Status</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-md">
                 <FormField
                   control={form.control}
                   name="status"
@@ -570,7 +570,7 @@ export default function AdminProductForm({
               <CardHeader>
                 <CardTitle>Pricing</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-md">
                 <FormField
                   control={form.control}
                   name="price"
@@ -657,7 +657,7 @@ export default function AdminProductForm({
               <CardHeader>
                 <CardTitle>Category</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-md">
                 <FormField
                   control={form.control}
                   name="category"
@@ -712,7 +712,7 @@ export default function AdminProductForm({
               <CardHeader>
                 <CardTitle>Thumbnail</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-md">
                 <FormField
                   control={form.control}
                   name="thumbnailUrl"
@@ -785,7 +785,7 @@ export default function AdminProductForm({
                     Upload the main product file (ZIP, RAR, PDF).
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-md">
                   <FormField
                     control={form.control}
                     name="fileUrl"
@@ -851,7 +851,7 @@ export default function AdminProductForm({
                                     <p className="text-sm font-medium truncate">
                                       {fileName || "Product file"}
                                     </p>
-                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <div className="flex items-center gap-sm text-xs text-muted-foreground">
                                       <span className="font-medium">
                                         {getFileExtension(fileName || "")}
                                       </span>
@@ -878,7 +878,7 @@ export default function AdminProductForm({
                               </div>
                               {/* File Info */}
                               <div className="rounded-md border border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-900 p-3">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-sm">
                                   <div className="h-2 w-2 rounded-full bg-green-500" />
                                   <p className="text-xs font-medium text-green-900 dark:text-green-100">
                                     File uploaded successfully

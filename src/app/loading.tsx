@@ -1,12 +1,11 @@
 "use client";
 
-import { motion } from "motion/react";
-import { Loader } from "@/shared/components/ui/loader";
+import * as motion from "motion/react-client";
 
 export default function Loading() {
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm">
-      <div className="flex flex-col items-center space-y-4">
+      <div className="flex flex-col items-center space-md">
         {/* Logo or Brand Element Animation */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
@@ -30,7 +29,7 @@ export default function Loading() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="flex flex-col items-center gap-2"
+          className="flex flex-col items-center gap-sm"
         >
           <div className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
             Emazouz Digital

@@ -1,3 +1,6 @@
-export const formatPrice = (price: string | number) => {
-  return Number(price || 0).toFixed(2);
-};
+  export const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(price);
+  };

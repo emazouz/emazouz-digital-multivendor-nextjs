@@ -7,6 +7,6 @@ export const metadata: Metadata = {
 
 export default async function DashboardAdmin() {
   return (
-    <main className="flex-center min-h-screen w-full flex-col gap-16"></main>
+    <main className="flex items-center justify-center min-h-screen w-full flex-col gap-16"></main>
   );
 }

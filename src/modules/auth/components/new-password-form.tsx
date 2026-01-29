@@ -137,7 +137,7 @@ const NewPasswordForm = () => {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Password Field */}
-            <motion.div variants={itemVariants} className="space-y-2">
+            <motion.div variants={itemVariants} className="space-sm">
               <Label
                 htmlFor="password"
                 className="block text-base font-semibold text-foreground"
@@ -181,7 +181,7 @@ const NewPasswordForm = () => {
                 className="w-full rounded-full h-12 disabled:opacity-70 hover:scale-[1.02] active:scale-[0.98] transition-transform"
               >
                 {isLoading ? (
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-sm">
                     <Loader size="sm" />
                     Resetting...
                   </span>

@@ -58,10 +58,13 @@ const UserProfile = memo(function UserProfile() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="h-9 gap-2 px-2 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+          className="h-9 gap-sm px-2 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
         >
           <Avatar className="h-7 w-7">
-            <AvatarImage src={user.image || "/avatar.png"} alt={user.name || "User"} />
+            <AvatarImage
+              src={user.image || "/avatar.png"}
+              alt={user.name || "User"}
+            />
             <AvatarFallback className="bg-primary-foreground/20 text-primary-foreground text-xs">
               {userInitials}
             </AvatarFallback>
@@ -130,7 +133,7 @@ function AdminHeader() {
     <header className="sticky top-0 z-50 w-full bg-background border-b border-border">
       <div className="h-16 flex items-center justify-between px-4">
         {/* Left Section - Logo & Menu */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-sm">
           {/* Logo */}
           <Link href="/admin" className="shrink-0">
             <Logo />
@@ -160,7 +163,7 @@ function AdminHeader() {
         </div>
 
         {/* Right Section - Icons & Profile */}
-        <div className="flex items-center gap-1 lg:gap-2">
+        <div className="flex items-center gap-1 lg:gap-sm">
           {/* Notifications */}
           <Button
             variant="ghost"

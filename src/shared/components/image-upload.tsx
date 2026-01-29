@@ -98,7 +98,7 @@ export function ImageUpload({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-md">
       {/* If we have a value (URL), show preview */}
       {value ? (
         <div className="relative aspect-video w-full overflow-hidden rounded-md border bg-muted group">
@@ -131,7 +131,7 @@ export function ImageUpload({
           `}
         >
           <input {...getInputProps()} />
-          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+          <div className="flex flex-col items-center gap-sm text-muted-foreground">
             <div className="p-2 bg-muted rounded-full">
               <Upload className="h-6 w-6" />
             </div>
@@ -169,7 +169,7 @@ export function ImageUpload({
             )}
           </div>
 
-          <div className="space-y-4 mt-4">
+          <div className="space-md mt-4">
             <div className="flex items-center gap-4">
               <span className="text-sm">Zoom</span>
               <input

@@ -18,7 +18,7 @@ function CategoryList() {
   return (
     <SimpleBar className="w-full pb-4">
       <motion.div
-        className="flex-center gap-3 min-w-max px-1"
+        className="flex items-center justify-center gap-3 min-w-max px-1"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}

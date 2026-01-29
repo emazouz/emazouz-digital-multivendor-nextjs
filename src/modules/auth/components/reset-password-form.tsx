@@ -16,7 +16,7 @@ import { reset } from "../actions/auth.actions";
 // Cooldown intervals in seconds: 1 min, 3 min, 5 min
 const COOLDOWN_INTERVALS = [60, 180, 300];
 
-const ResetForm = () => {
+const ResetPasswordForm = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -127,7 +127,7 @@ const ResetForm = () => {
       <LeftSideAuth />
 
       {/* Right Side - Decorative Images */}
-      <div className="relative flex-center p-6 sm:p-8 md:p-12 bg-background order-2 lg:order-1">
+      <div className="relative flex items-center justify-center p-6 sm:p-8 md:p-12 bg-background order-2 lg:order-1">
         {/* Mode Toggle */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -186,7 +186,7 @@ const ResetForm = () => {
               {/* Resend Section */}
               <div className="mt-4 pt-3 border-t border-emerald-500/20">
                 {cooldownSeconds > 0 ? (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-sm text-sm text-muted-foreground">
                     <RefreshCw className="w-4 h-4" />
                     <span>
                       Resend available in{" "}
@@ -205,12 +205,12 @@ const ResetForm = () => {
                     className="text-primary hover:text-primary/80 hover:bg-primary/10 -ml-2"
                   >
                     {isLoading ? (
-                      <span className="flex items-center gap-2">
+                      <span className="flex items-center gap-sm">
                         <Loader size="sm" />
                         Sending...
                       </span>
                     ) : (
-                      <span className="flex items-center gap-2">
+                      <span className="flex items-center gap-sm">
                         <RefreshCw className="w-4 h-4" />
                         Resend reset email
                       </span>
@@ -224,7 +224,7 @@ const ResetForm = () => {
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email Field */}
-            <motion.div variants={itemVariants} className="space-y-2">
+            <motion.div variants={itemVariants} className="space-sm">
               <Label
                 htmlFor="email"
                 className="block text-base font-semibold text-foreground"
@@ -255,7 +255,7 @@ const ResetForm = () => {
                 className="w-full rounded-full h-12 disabled:opacity-70 hover:scale-[1.02] active:scale-[0.98] transition-transform"
               >
                 {isLoading ? (
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-sm">
                     <Loader size="sm" />
                     Sending email...
                   </span>
@@ -282,4 +282,4 @@ const ResetForm = () => {
   );
 };
 
-export default ResetForm;
+export default ResetPasswordForm;

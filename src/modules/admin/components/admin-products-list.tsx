@@ -45,14 +45,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/shared/components/ui/dialog";
 
 import {
   getProductsAction,
@@ -60,6 +52,10 @@ import {
   deleteProductAction,
 } from "../actions/admin-product.actions";
 import type { AdminProductDTO } from "../services/admin-product.service";
+import StatsCard from "@/shared/components/stats-card";
+import { formatPrice } from "@/shared/lib/format";
+import { formatDate } from "@/shared/lib/date";
+import ConfirmDialogDeleted from "@/shared/components/confirm-dialog-deleted";
 
 // ============================
 // Constants
@@ -88,31 +84,7 @@ const STATUS_STYLES: Record<
   ARCHIVED: { label: "Archived", variant: "outline" },
 };
 
-// ============================
-// Stats Card Component
-// ============================
-interface StatsCardProps {
-  title: string;
-  value: number;
-  icon: React.ReactNode;
-  color: string;
-}
 
-function StatsCard({ title, value, icon, color }: StatsCardProps) {
-  return (
-    <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-4">
-      <div
-        className={`w-12 h-12 rounded-lg flex items-center justify-center ${color}`}
-      >
-        {icon}
-      </div>
-      <div>
-        <p className="text-sm text-muted-foreground">{title}</p>
-        <p className="text-2xl font-bold">{value}</p>
-      </div>
-    </div>
-  );
-}
 
 // ============================
 // Main Component
@@ -218,6 +190,8 @@ function AdminProductsList() {
     setDeleteDialogOpen(true);
   };
 
+
+
   const handleDeleteConfirm = async () => {
     if (!productToDelete) return;
 
@@ -241,20 +215,8 @@ function AdminProductsList() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(price);
-  };
+
 
   // ============================
   // Render
@@ -366,7 +328,7 @@ function AdminProductsList() {
           </Select>
 
           {/* Actions */}
-          <div className="flex gap-2">
+          <div className="flex gap-sm">
             <Button type="submit">Search</Button>
             {(search || category !== "all" || status !== "all") && (
               <Button
@@ -502,7 +464,9 @@ function AdminProductsList() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
                             onClick={() =>
-                              router.push(`/admin/products/${product.slug}/view`)
+                              router.push(
+                                `/admin/products/${product.slug}/view`,
+                              )
                             }
                           >
                             <Eye className="w-4 h-4 mr-2" />
@@ -543,7 +507,7 @@ function AdminProductsList() {
                   )}{" "}
                   of {pagination.total} products
                 </p>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-sm">
                   <Button
                     variant="outline"
                     size="sm"
@@ -583,34 +547,15 @@ function AdminProductsList() {
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Product</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete &quot;{productToDelete?.title}
-              &quot;? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteDialogOpen(false)}
-              disabled={isDeleting}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDeleteConfirm}
-              disabled={isDeleting}
-            >
-              {isDeleting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
+      <ConfirmDialogDeleted
+        deleteDialogOpen={deleteDialogOpen}
+        setDeleteDialogOpen={setDeleteDialogOpen}
+        title="Delete Product"
+        question={`Are you sure you want to delete "${productToDelete?.title}"? This action cannot be undone.`}
+        isDeleting={isDeleting}
+        handleDeleteConfirm={handleDeleteConfirm}
+      />
     </div>
   );
 }
